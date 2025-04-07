@@ -1,0 +1,180 @@
+/* src/components/ServiceTabs.css */
+@import url('../../assets/variables.css');
+
+.service-tabs-section {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--spacing) 2rem;
+  margin-bottom: 40px;
+  background: transparent;
+}
+
+.service-title {
+  font-size: var(--font-size-h2);
+  margin-bottom: 4rem;
+  color: var(--color-text-white);
+  text-align: center;
+  font-weight: 600;
+}
+
+.tab-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.tab-button {
+  padding: 0.8rem 2rem;
+  font-size: var(--font-size-small);
+  background-color: transparent;
+  color: var(--color-text-white);
+  border: none;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.tab-button:hover {
+  color: var(--color-text-primary);
+}
+
+.tab-button[data-state='active'] {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.tab-button[data-state='active']::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 50%;
+  height: 2px;
+  background-color: var(--color-text-primary);
+  transform: translateX(-50%);
+}
+
+.tab-content {
+  padding: 2rem;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-light);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.service-items {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.service-item {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.service-item:last-child {
+  border-bottom: none;
+}
+
+.item-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.item-name {
+  font-size: var(--font-size-small);
+  color: var(--color-text-white);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.item-name:hover {
+  color: var(--color-text-primary);
+}
+
+.item-price {
+  font-size: var(--font-size-small);
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.quantity-wrapper {
+  display: flex;
+  justify-content: flex-end; /* Căn cụm quantity sang phải */
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Căn giữa các phần tử bên trong */
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.1); /* Nền nhẹ để bọc cụm quantity */
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px; /* Góc bo nhẹ */
+  border: 1px solid var(--color-border-light);
+}
+
+.quantity-controls button {
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--color-border-light);
+  background: transparent;
+  color: var(--color-text-white);
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+}
+
+.quantity-controls button:hover {
+  background: var(--color-text-primary);
+  color: var(--color-text-white);
+  border-color: var(--color-text-primary);
+}
+
+.quantity-controls span {
+  min-width: 25px;
+  text-align: center;
+  font-size: var(--font-size-small);
+  color: var(--color-text-white);
+}
+
+.total-bill {
+  margin-top: 2rem;
+  text-align: right;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-text-white);
+}
+
+.total-bill span {
+  color: var(--color-text-primary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .service-tabs-section {
+    padding: var(--spacing) 1rem;
+  }
+
+  .tab-buttons {
+    gap: 1rem;
+  }
+
+  .quantity-controls button {
+    width: 20px;
+    height: 20px;
+  }
+}

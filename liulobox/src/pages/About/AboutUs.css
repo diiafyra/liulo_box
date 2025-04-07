@@ -1,0 +1,136 @@
+.about-us-section {
+    padding: 5rem 2rem;
+    background: var(--color-background); /* Galaxy - Nền chính */
+    color: var(--color-text-primary); /* Milky Way - Chữ chính */
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.about-us-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.about-us-container h1 {
+    font-size: var(--font-size-h2); /* 45px */
+    font-weight: 800;
+    padding: 10px;
+    margin-bottom: 2rem;
+    background: linear-gradient(90deg, var(--color-accent), var(--color-button-active)); /* Planetary to Tông xanh đậm */
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.about-us-content {
+    margin-bottom: 3rem;
+}
+
+.about-us-content h2 {
+    font-size: var(--font-size-h3); /* 40px */
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--color-button); /* Venus - Màu vàng nhạt */
+}
+
+.about-us-content p {
+    font-size: var(--font-size-medium); /* 18px */
+    line-height: 1.6;
+    color: var(--color-text-secondary); /* Meteor - Chữ phụ */
+    margin-bottom: 1rem;
+}
+
+.milestone-section {
+    margin: 3rem 0;
+}
+
+.milestone-section h3 {
+    font-size: var(--font-size-large); /* 24px */
+    font-weight: 600;
+    margin-bottom: 2rem;
+    color: var(--color-accent); /* Planetary - Điểm nhấn */
+}
+
+.milestone-items {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.milestone-item {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--color-border-light); /* Viền nhẹ */
+    border-radius: 10px;
+    padding: 1.5rem;
+    width: 300px;
+    text-align: left;
+    transition: transform 0.3s ease;
+}
+
+.milestone-item:hover {
+    transform: translateY(-5px);
+}
+
+.milestone-year {
+    font-size: var(--font-size-medium); /* 18px */
+    font-weight: 700;
+    color: var(--color-button); /* Venus - Màu vàng nhạt */
+    margin-bottom: 0.5rem;
+}
+
+.milestone-details h4 {
+    font-size: var(--font-size-small); /* 16px */
+    font-weight: 600;
+    color: var(--color-text-primary); /* Milky Way - Chữ chính */
+    margin-bottom: 0.5rem;
+}
+
+.milestone-details p {
+    font-size: var(--font-size-small); /* 16px */
+    color: var(--color-text-secondary); /* Meteor - Chữ phụ */
+}
+
+.cta-section {
+    margin-top: 3rem;
+}
+
+.cta-section h3 {
+    font-size: var(--font-size-large); /* 24px */
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--color-button); /* Venus - Màu vàng nhạt */
+}
+
+.cta-button {
+    padding: 0.8rem 2rem;
+    font-size: var(--font-size-medium); /* 18px */
+    font-weight: 600;
+    color: var(--color-text-white); /* Màu trắng thuần */
+    background: linear-gradient(90deg, var(--color-accent), var(--color-button-active)); /* Planetary to Tông xanh đậm */
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.cta-button:hover {
+    background: linear-gradient(90deg, var(--color-button-active), var(--color-accent)); /* Đảo ngược gradient */
+}
+
+@media (max-width: 768px) {
+    .about-us-container h1 {
+        font-size: 2.5rem;
+    }
+
+    .about-us-content h2 {
+        font-size: 1.8rem;
+    }
+
+    .milestone-item {
+        width: 100%;
+    }
+}

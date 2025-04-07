@@ -1,0 +1,111 @@
+@import url('../../assets/variables.css');
+
+.footer {
+    background: var(--color-background); /* Thay #2c3e50 bằng --color-background (Galaxy) */
+    color: var(--color-text-white); /* Thay #fff bằng --color-text-white */
+    padding: 2rem 0;
+    text-align: center;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+}
+
+.back-to-top {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.top-button {
+    display: inline-block;
+    font-size: 1.5rem;
+    color: var(--color-text-white); /* Thay #fff bằng --color-text-white */
+    transition: transform 0.3s ease;
+}
+
+.top-button:hover {
+    transform: translateY(-5px);
+}
+
+.footer-content {
+    padding: 20px 0px 20px 0px;
+    border-top: 1px solid var(--color-border-light); /* Thay rgba(255, 255, 255, 0.2) bằng --color-border-light */
+    border-bottom: 1px solid var(--color-border-light); /* Thay rgba(255, 255, 255, 0.2) bằng --color-border-light */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between; /* Căn đều các section */
+    gap: 2rem;
+    align-items: flex-start; /* Đảm bảo các section thẳng hàng ở phía trên */
+}
+
+.footer-section {
+    flex: 1; /* Các section chiếm đều không gian */
+    min-width: 200px; /* Đảm bảo section không bị co quá nhỏ */
+    max-width: 250px; /* Giới hạn chiều rộng tối đa */
+    text-align: left;
+}
+
+.footer-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section ul li {
+    margin: 0.3rem 0;
+}
+
+.footer-section ul li a {
+    color: var(--color-text-white); /* Thay #fff bằng --color-text-white */
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer-section ul li a:hover {
+    color: var(--color-text-secondary); /* Thay #f39c12 bằng --color-text-secondary (Meteor) */
+}
+
+.social-icons {
+    display: flex;
+    gap: 10px;
+}
+
+.social-icons a {
+    color: var(--color-text-white); /* Thay #fff bằng --color-text-white */
+    font-size: 1.5rem;
+    transition: color 0.3s;
+}
+
+.social-icons a:hover {
+    color: var(--color-text-secondary); /* Thay #f39c12 bằng --color-text-secondary (Meteor) */
+}
+
+.footer-bottom {
+    margin-top: 1rem;
+    padding-top: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column; /* Xếp dọc trên màn hình nhỏ */
+        gap: 1.5rem; /* Giảm khoảng cách trên màn hình nhỏ */
+    }
+
+    .footer-section {
+        max-width: 100%; /* Cho phép section chiếm toàn bộ chiều rộng */
+        min-width: unset; /* Bỏ giới hạn min-width trên màn hình nhỏ */
+    }
+}
+
+@media (min-width: 769px) {
+    .footer-content {
+        flex-direction: row; /* Xếp ngang trên màn hình lớn */
+        justify-content: space-between; /* Căn đều */
+    }
+}

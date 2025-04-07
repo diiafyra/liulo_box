@@ -1,0 +1,16 @@
+@import url('../../assets/variables.css');
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+.home {
+    /* position: relative; */
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    z-index: 0;
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+}

@@ -1,0 +1,28 @@
+:root {
+    /* Màu sắc */
+    --color-background: #081F5C; /* Galaxy - Dùng cho nền chính */
+    --color-text-primary: #FFF9F0; /* Milky Way - Dùng cho chữ chính */
+    --color-text-secondary: #F7F2EB; /* Meteor - Dùng cho hover */
+    --color-accent: #334EAC; /* Planetary - Dùng cho các điểm nhấn */
+    --color-container: #7096D1; /* Universe - Không dùng nhưng giữ lại */
+    --color-button: #BAD6EB; /* Venus - Không dùng nhưng giữ lại */
+    --color-button-active: #135bd5; /* Tông xanh đậm để tạo hiệu ứng nhấn */
+    --color-background-light: #D0E3FF; /* Sky - Không dùng nhưng giữ lại */
+    --color-text-accent: #334EAC; /* Planetary - Không dùng nhưng giữ lại */
+    --color-border-light: rgba(255, 249, 240, 0.2); /* Dùng cho viền nhẹ (dựa trên --color-text-primary) */
+    --color-text-white: #ffffff;
+    --color-text-black: #000000; /* Màu trắng thuần cho chữ */
+    --color-booked-slot: #750a0a;
+    --color-slot-selected: #16410e;
+
+    /* Typography */
+    --font-size-large: 24px;
+    --font-size-medium: 18px;
+    --font-size-small: 16px;
+    --font-size-tiny: 14px;
+    --font-size-h3: 40px;
+    --font-size-h2: 45px;
+
+    /* Layout */
+    --spacing: 0px;
+}

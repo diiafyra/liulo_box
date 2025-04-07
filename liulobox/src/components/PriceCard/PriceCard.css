@@ -1,0 +1,132 @@
+@import url('../../assets/variables.css');
+
+.price-card {
+  background-color: rgba(51, 78, 172, 0.1); /* Semi-transparent accent color */
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--color-border-light);
+  display: flex;
+  flex-direction: column; /* Default for small screens */
+  height: auto; /* Changed from 100% to auto */
+  min-height: 100%;
+  position: relative; /* Added for better positioning control */
+}
+
+.price-card:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+.room-highlight {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-bottom: 2px solid var(--color-accent);
+  transition: transform 0.5s ease;
+  display: block; /* Ensure proper display */
+}
+
+.room-highlight:hover {
+  transform: scale(1.02);
+}
+
+.room-infor {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  background-color: rgba(51, 78, 172, 0.1); /* Added background to ensure visibility */
+  z-index: 1; /* Ensure it's above other elements */
+}
+
+.room-infor h3 {
+  font-size: var(--font-size-large);
+  margin-bottom: 15px;
+  color: var(--color-text-primary);
+  font-weight: 700;
+  text-align: center; /* Center the title */
+  background: linear-gradient(90deg, var(--color-text-primary), var(--color-accent), var(--color-text-primary));
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.room-infor p {
+  margin-bottom: 12px;
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  text-align: justify; /* Justify text for better appearance */
+}
+
+.room-infor p:first-of-type {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center capacity text */
+  gap: 5px;
+  text-align: center;
+}
+
+.room-infor p:first-of-type::before {
+  content: "👥";
+  font-size: var(--font-size-small);
+}
+
+/* Add space before PriceSwitcher */
+.room-infor p:last-of-type {
+  margin-bottom: 20px;
+}
+
+/* Responsive adjustments */
+
+/* Màn hình lớn (Desktop) */
+@media (min-width: 769px) {
+  .price-card {
+    flex-direction: row; /* Horizontal layout: ảnh trái, thông tin phải */
+  }
+
+  .room-highlight {
+    width: 40%; /* Ảnh chiếm 40% chiều rộng */
+    height: auto;
+    min-height: 240px; /* Ensure minimum height */
+    border-bottom: none;
+    border-right: 2px solid var(--color-accent); /* Dùng border-right thay cho border-bottom */
+  }
+
+  .room-infor {
+    width: 60%; /* Thông tin chiếm 60% chiều rộng */
+    padding: 15px;
+  }
+}
+
+/* Màn hình nhỏ (Tablet, Mobile) */
+@media (max-width: 768px) {
+  .price-card {
+    flex-direction: column; /* Vertical layout: ảnh trên, thông tin dưới */
+  }
+
+  .room-highlight {
+    width: 100%; /* Ảnh chiếm toàn bộ chiều rộng */
+    height: 220px; /* Đặt lại chiều cao ảnh */
+    border-bottom: 2px solid var(--color-accent);
+    border-right: none;
+  }
+
+  .room-infor {
+    width: 100%; /* Thông tin chiếm toàn bộ chiều rộng */
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .room-infor h3 {
+    font-size: calc(var(--font-size-large) - 4px);
+  }
+
+  .room-infor p {
+    font-size: calc(var(--font-size-small) - 1px);
+  }
+}

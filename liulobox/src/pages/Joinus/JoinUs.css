@@ -1,0 +1,212 @@
+/* Import các biến từ variables.css */
+@import url('../../assets/variables.css');
+
+/* Container chính */
+.join-us-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-background) 0%, #0a2a8a 100%);
+  padding: 2rem; /* Margin tổng thể */
+}
+
+/* Card chính */
+.join-us-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border-light);
+  border-radius: 20px;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+}
+
+/* Tiêu đề */
+.join-us-title {
+  font-size: var(--font-size-h3);
+  color: var(--color-text-primary);
+  text-align: center;
+  margin-bottom: 2.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+}
+
+/* Tab Buttons */
+.join-us-container .tab-buttons {
+  display: flex;
+  flex-direction: row; /* Đảm bảo layout ngang */
+  justify-content: center;
+  gap: 0.5rem; /* Khoảng cách giữa các nút */
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50px;
+  padding: 0.4rem;
+  margin-bottom: 2rem;
+  width: 100%; /* Đảm bảo container tab chiếm toàn bộ chiều rộng */
+  box-sizing: border-box;
+}
+
+.join-us-container .tab-button {
+  flex: 1; /* Chia đều không gian cho mỗi nút */
+  padding: 0.8rem 1rem;
+  font-size: var(--font-size-medium);
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  white-space: nowrap; /* Ngăn chữ xuống dòng */
+}
+
+.join-us-container .tab-button.active {
+  background: var(--color-accent);
+  color: var(--color-text-white);
+  font-weight: 600;
+}
+
+/* Nội dung form */
+.form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* Tăng khoảng cách giữa các phần tử trong form */
+}
+
+/* Input */
+.form-input {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border-light);
+  border-radius: 12px;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-small);
+  transition: all 0.3s ease;
+}
+
+.form-input::placeholder {
+  color: rgba(255, 249, 240, 0.5);
+}
+
+.form-input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Tùy chỉnh thông báo lỗi mặc định của trình duyệt */
+.form-input:invalid:focus {
+  border-color: #ff6b6b; /* Viền đỏ khi input không hợp lệ */
+}
+
+/* Nút hành động */
+.action-button {
+  width: 100%;
+  padding: 1rem;
+  background: var(--color-accent);
+  color: var(--color-text-white);
+  border: none;
+  border-radius: 12px;
+  font-size: var(--font-size-medium);
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.action-button:hover {
+  background: var(--color-button-active);
+}
+
+/* Nút Google */
+.google-button {
+  width: 100%;
+  padding: 1rem;
+  background: transparent;
+  border: 1px solid var(--color-border-light);
+  color: var(--color-text-primary);
+  border-radius: 12px;
+  font-size: var(--font-size-medium);
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.google-button:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.google-icon {
+  font-size: 1.5rem;
+}
+
+/* Link quên mật khẩu */
+.form-link {
+  text-align: center;
+  margin-top: 1.5rem; /* Tăng khoảng cách */
+}
+
+.form-link a {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-small);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.form-link a:hover {
+  color: var(--color-text-primary);
+  text-decoration: underline;
+}
+
+/* Responsive cho màn hình nhỏ */
+@media (max-width: 480px) {
+  .join-us-card {
+    padding: 1.5rem; /* Giảm padding trên màn hình nhỏ */
+  }
+
+  .join-us-title {
+    font-size: 32px; /* Giảm kích thước tiêu đề */
+  }
+
+  .tab-buttons {
+    flex-direction: row; /* Đảm bảo layout ngang trên màn hình nhỏ */
+    gap: 0.3rem; /* Giảm khoảng cách giữa các nút */
+    padding: 0.3rem;
+  }
+
+  .tab-button {
+    font-size: 14px; /* Giảm kích thước chữ */
+    padding: 0.6rem 0.8rem; /* Giảm padding */
+  }
+
+  .form-content {
+    gap: 1.25rem; /* Đảm bảo khoảng cách hợp lý trên màn hình nhỏ */
+  }
+
+  .form-input {
+    padding: 0.8rem 1rem; /* Giảm padding input */
+    font-size: 14px; /* Giảm kích thước chữ */
+  }
+
+  .action-button,
+  .google-button {
+    padding: 0.8rem; /* Giảm padding nút */
+    font-size: 16px; /* Giảm kích thước chữ */
+  }
+
+  .google-icon {
+    font-size: 1.2rem; /* Giảm kích thước icon */
+  }
+
+  .form-link {
+    margin-top: 1.25rem; /* Đảm bảo khoảng cách hợp lý */
+  }
+}

@@ -1,0 +1,183 @@
+/* Import file variables.css */
+@import url('../../assets/variables.css');
+
+/* Container chính */
+.food-detail-page {
+    display: flex;
+    flex-direction: column;
+    /* Mặc định xếp dọc trên màn hình nhỏ */
+    align-items: center;
+    background-color: var(--color-background);
+    /* Nền chính */
+    padding: var(--spacing);
+    min-height: 100vh;
+    /* Đảm bảo chiếm toàn bộ chiều cao màn hình */
+}
+
+/* Hình ảnh món ăn */
+.food-image {
+    width: 100%;
+    max-width: 400px;
+    /* Giới hạn chiều rộng tối đa */
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+/* Thông tin món ăn */
+.food-info {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    /* Khoảng cách giữa các phần tử */
+    color: var(--color-text-primary);
+    /* Màu chữ chính */
+    padding: 20px;
+}
+
+/* Tiêu đề */
+.food-info h2 {
+    font-size: var(--font-size-h2);
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+/* Mô tả và các đoạn văn */
+.food-info p {
+    font-size: var(--font-size-medium);
+    color: var(--color-text-secondary);
+    /* Màu chữ phụ */
+    margin: 5px 0;
+}
+
+.description {
+    font-size: var(--font-size-small);
+    line-height: 1.5;
+}
+
+/* Quantity Selector */
+.quantity-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: space-between;
+    gap: 10px;
+    align-items: center;
+}
+
+.quantity-btn {
+    background-color: var(--color-accent);
+    /* Màu nhấn */
+    color: var(--color-text-white);
+    border: none;
+    padding: 8px 12px;
+    font-size: var(--font-size-small);
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.quantity-input {
+    width: 50px;
+    /* Chiều rộng cố định cho input */
+    text-align: center;
+    background-color: var(--color-background-light);
+    border: 1px solid var(--color-border-light);
+    padding: 6px;
+    font-size: var(--font-size-small);
+    color: var(--color-text-black);
+}
+
+/* Action Buttons */
+.btn-buy-now {
+    background-color: var(--color-button-active);
+    /* Màu xanh đậm */
+    color: var(--color-text-white);
+    padding: 12px;
+    font-size: var(--font-size-medium);
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-buy-now:hover {
+    background-color: var(--color-accent);
+    /* Hover đổi màu */
+}
+
+.btn-add-to-cart {
+    background-color: var(--color-accent);
+    /* Màu nhấn */
+    color: var(--color-text-white);
+    padding: 12px;
+    font-size: var(--font-size-medium);
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    /* Khoảng cách giữa icon và chữ */
+    transition: background-color 0.3s ease;
+}
+
+.btn-add-to-cart:hover {
+    background-color: var(--color-button-active);
+    /* Hover đổi màu */
+}
+
+.cart-icon {
+    font-size: var(--font-size-medium);
+}
+
+/* Responsive Design */
+@media (min-width: 768px) {
+    .food-detail-page {
+        flex-direction: row;
+        /* Xếp ngang trên màn hình lớn */
+        justify-content: center;
+        gap: 40px;
+        /* Khoảng cách giữa ảnh và thông tin */
+    }
+
+    .food-image {
+        width: 50%;
+        /* Chiếm 50% chiều rộng */
+        max-width: 500px;
+    }
+
+    .food-info {
+        width: 50%;
+        /* Chiếm 50% chiều rộng */
+        align-items: flex-start;
+        /* Căn trái trên màn hình lớn */
+    }
+
+    .btn-buy-now,
+    .btn-add-to-cart {
+        width: 80%;
+        /* Giảm chiều rộng nút trên màn hình lớn */
+    }
+}
+
+@media (max-width: 767px) {
+    .food-info {
+        align-items: center;
+        /* Căn giữa trên màn hình nhỏ */
+        text-align: center;
+    }
+
+    .btn-buy-now,
+    .btn-add-to-cart {
+        width: 90%;
+        /* Giảm chiều rộng để vừa màn hình nhỏ */
+    }
+
+    .quantity-container {
+        justify-content: space-between;
+    }
+}

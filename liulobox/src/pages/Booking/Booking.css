@@ -1,0 +1,110 @@
+@import url('../../assets/variables.css');
+
+.booking-container {
+  min-height: 100vh;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  padding: 2rem;
+}
+
+@media (max-width: 768px) {
+  .booking-container {
+    padding: 1rem;
+  }
+}
+
+
+.timeline {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+  .timeline {
+    display: block;
+  }
+}
+
+.timeline h3 {
+  font-size: var(--font-size-large);
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: var(--color-accent);
+}
+
+.timeline-steps {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.timeline-step {
+  display: flex;
+  margin: 10px;
+
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.timeline-step p {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+}
+
+.timeline-step.active p {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.timeline-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-medium);
+  color: var(--color-text-secondary);
+}
+
+.timeline-step.active .timeline-icon {
+  background: var(--color-accent);
+  color: var(--color-text-white);
+}
+
+.timeline-line {
+  width: 50px;
+  height: 2px;
+  background: var(--color-border-light);
+}
+
+/* ============================
+   Hóa đơn (bill) cuối trang
+============================ */
+.bill {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border-light);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.bill h3 {
+  font-size: var(--font-size-large);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--color-button);
+}
+
+.bill p {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.action-button{
+  margin-bottom: 30px;
+}

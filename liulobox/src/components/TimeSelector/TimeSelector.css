@@ -1,0 +1,60 @@
+@import url('../../assets/variables.css');
+
+/* Ô thời gian */
+.time-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.time-slot {
+  padding: 0.8rem;
+  text-align: center;
+  border-radius: 8px;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.time-slot.available {
+  background: var(--color-accent);
+}
+
+.time-slot.booked {
+  background: var(--color-button-active);
+  cursor: not-allowed;
+}
+
+.time-slot.selected {
+  background: var(--color-background-light);
+}
+
+.time-slot:hover {
+  background: var(--color-button-active);
+}
+
+.price-legend-horizontal {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.legend-item-horizontal {
+  display: flex;
+  font-size: var(--font-size-small);
+  color: var(--color-text-primary);
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .time-slots {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  }
+}

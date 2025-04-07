@@ -1,0 +1,153 @@
+@import url('../../assets/variables.css');
+
+.room-layout {
+  background-color: var(--color-background);
+}
+
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  /* Tự động điều chỉnh theo kích thước */
+  gap: 0px;
+  /* Khoảng cách giữa các item */
+}
+
+.room-item {
+  margin: 0px 10px 20px 10px;
+  /* Khoảng cách giữa các item */
+  display: flex;
+  flex-direction: column;
+  /* Mặc định xếp dọc */
+  align-items: center;
+  justify-content: flex-start;
+  border: 1px solid var(--color-border-light);
+  border-radius: 8px;
+  padding: 16px;
+  padding-right: 0;
+  background-color: var(--color-background);
+  /* Nền của item */
+  height: 400px;
+  /* Chiều dài cố định */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  /* Đảm bảo ảnh không bị tràn ra ngoài */
+
+}
+
+.room-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  /* Tăng độ bóng khi hover */
+}
+
+.room-image {
+  width: 100%;
+  /* Đảm bảo ảnh luôn vừa với container */
+  height: 100%;
+  /* Chiều cao cố định */
+  object-fit: cover;
+  /* Cắt ảnh theo kích thước của container */
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.room-item:hover .room-image {
+  transform: scale(1.05);
+  /* Phóng to ảnh khi hover */
+}
+
+.room-info {
+  padding-top: 10px;
+  padding-right: 10px;
+  text-align: center;
+  /* Canh giữa thông tin */
+}
+
+.room-item h3 {
+  font-size: var(--font-size-medium);
+  color: var(--color-text-primary);
+  /* Màu chữ chính */
+}
+
+.room-item p {
+  margin: 5px 0;
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  /* Màu chữ phụ */
+}
+
+.room-item .room-info p {
+  font-size: var(--font-size-tiny);
+}
+
+.tab-bar {
+  display: flex;
+  justify-content: space-evenly;
+  padding: 10px;
+  margin-bottom: 20px;
+  background-color: var(--color-background);
+}
+
+.tab-bar button {
+  padding: 10px 15px;
+  background-color: var(--color-container);
+  border: none;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-small);
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.tab-bar button:hover,
+.tab-bar button.active {
+  background-color: var(--color-accent);
+}
+
+@media (max-width: 768px) {
+  .room-item {
+    flex-direction: row;
+    /* Xếp theo hàng trên màn nhỏ */
+    justify-content: flex-start;
+    /* Đảm bảo ảnh ở bên trái */
+    height: 200px;
+    /* Thẻ phòng thấp hơn trên màn nhỏ */
+  }
+
+  .room-image {
+    min-width: 40%;
+    /* Ảnh chiếm 40% diện tích */
+    min-height: 100%;
+    /* Ảnh vẫn đầy chiều dài của thẻ */
+    margin-right: 20px;
+    /* Khoảng cách giữa ảnh và thông tin */
+    object-fit: cover;
+  }
+
+  .room-info {
+    padding-left: 10px;
+  }
+}
+
+@media (min-width: 768px) {
+  .room-item {
+    flex-direction: column;
+    /* Xếp theo cột trên màn lớn */
+    justify-content: flex-start;
+    height: 400px;
+    /* Thẻ phòng cao hơn trên màn lớn */
+    object-fit: cover;
+  }
+
+  .room-image {
+    min-width: 100%;
+    /* Ảnh chiếm toàn bộ chiều rộng */
+    min-height: 40%;
+    /* Ảnh chiếm 40% chiều dài của thẻ */
+  }
+
+  .room-info {
+    padding-left: 0;
+  }
+}
