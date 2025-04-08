@@ -183,7 +183,6 @@ D:\Download241222\cmc5\web\DEMO\backend\bin\Debug\net9.0\Firebase.Auth.dll
 D:\Download241222\cmc5\web\DEMO\backend\bin\Debug\net9.0\System.ServiceModel.dll
 D:\Download241222\cmc5\web\musicbox\backend\bin\Debug\net9.0\appsettings.Development.json
 D:\Download241222\cmc5\web\musicbox\backend\bin\Debug\net9.0\appsettings.json
-D:\Download241222\cmc5\web\musicbox\backend\bin\Debug\net9.0\liulobox-firebase-adminsdk-fbsvc-d132ce7b56.json
 D:\Download241222\cmc5\web\musicbox\backend\bin\Debug\net9.0\backend.staticwebassets.endpoints.json
 D:\Download241222\cmc5\web\musicbox\backend\bin\Debug\net9.0\backend.exe
 D:\Download241222\cmc5\web\musicbox\backend\bin\Debug\net9.0\backend.deps.json
@@ -365,3 +364,4 @@ D:\Download241222\cmc5\web\musicbox\backend\obj\Debug\net9.0\refint\backend.dll
 D:\Download241222\cmc5\web\musicbox\backend\obj\Debug\net9.0\backend.pdb
 D:\Download241222\cmc5\web\musicbox\backend\obj\Debug\net9.0\backend.genruntimeconfig.cache
 D:\Download241222\cmc5\web\musicbox\backend\obj\Debug\net9.0\ref\backend.dll
+D:\Download241222\cmc5\web\musicbox\backend\bin\Debug\net9.0\liulobox-firebase-adminsdk-fbsvc-d132ce7b56.json

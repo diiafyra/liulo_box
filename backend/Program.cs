@@ -20,9 +20,10 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<IUserDao, UserDao>();   // Đăng ký UserDao
 builder.Services.AddScoped<RoomDAO>(); // Đăng ký RoomDAO
 builder.Services.AddScoped<RoomPricingDAO>(); // Đăng ký RoomPricingDAO
-builder.Services.AddScoped<BookingDAO>(); 
+builder.Services.AddScoped<BookingDAO>();
 builder.Services.AddScoped<RoomCategoryDAO>(); // Đăng ký BookingDAO
 builder.Services.AddScoped<FoodDrinkDAO>();
+builder.Services.AddScoped<StockHistoryDao>(); // Đăng ký StockHistoryDao
 
 
 builder.Services.AddSingleton<EmailService>();
@@ -58,6 +59,8 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
+app.UseMiddleware<RoleMiddleware>();
+
 app.UseCors("AllowSpecificOrigin");  // Đảm bảo dùng policy đã thay đổi
 app.UseAuthentication();
 app.UseAuthorization();

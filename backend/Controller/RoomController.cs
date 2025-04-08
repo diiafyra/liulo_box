@@ -71,4 +71,12 @@ public async Task<ActionResult<List<RoomPricing>>> GetRoomPricingByDate(int room
         return Ok(bookedTimes);
     }
 
+    
+    [HttpGet("room-state")]
+    public async Task<ActionResult<List<RoomViewModel>>> GetStateRooms()
+    {
+        var rooms = await _roomDAO.GetActiveRoomsWithPricingAsync();
+        return Ok(rooms);
+    }
+
 }

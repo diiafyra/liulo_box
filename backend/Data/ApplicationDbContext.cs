@@ -16,6 +16,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<RoomImage> RoomImages { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<BookingTime> BookingTimes { get; set; }
+    public DbSet<StockHistory> StockHistories { get; set; } // Thêm dòng này
+    public DbSet<StockDetail> StockDetails { get; set; }
 
     // Configure relationships using Fluent API if needed
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -45,7 +47,7 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Booking>()
             .HasOne(b => b.Room)
-            .WithMany()
+            .WithMany(r => r.Bookings)
             .HasForeignKey(b => b.RoomId)
             .OnDelete(DeleteBehavior.Restrict);
 
@@ -88,5 +90,27 @@ public class ApplicationDbContext : DbContext
             .WithOne(b => b.User)
             .HasForeignKey(b => b.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Mối quan hệ giữa StockHistory và User
+        modelBuilder.Entity<StockHistory>()
+            .HasOne(sh => sh.User)
+            .WithMany(u => u.StockHistories)
+            .HasForeignKey(sh => sh.CreatedBy)
+            .OnDelete(DeleteBehavior.Restrict); // Khi xóa user, không xóa StockHistory
+
+        // Mối quan hệ giữa StockDetail và StockHistory
+        modelBuilder.Entity<StockDetail>()
+            .HasOne(sd => sd.StockHistory)
+            .WithMany(sh => sh.StockDetails)
+            .HasForeignKey(sd => sd.StockHistoryId)
+            .OnDelete(DeleteBehavior.Cascade); // Xóa StockDetail khi StockHistory bị xóa
+
+        // Mối quan hệ giữa StockDetail và FoodDrink
+        modelBuilder.Entity<StockDetail>()
+            .HasOne(sd => sd.FoodDrink)
+            .WithMany()
+            .HasForeignKey(sd => sd.FoodDrinkId)
+            .OnDelete(DeleteBehavior.Cascade); // Xóa StockDetail khi FoodDrink bị xóa
+
     }
 }

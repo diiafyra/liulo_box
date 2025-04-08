@@ -1,0 +1,151 @@
+.offline-booking-container {
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    padding: 2rem;
+    border-radius: 16px;
+    max-width: 700px;
+    margin: 2rem auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.offline-booking-container h2 {
+    font-size: var(--font-size-h3);
+    margin-bottom: 2rem;
+    text-align: center;
+    color: var(--color-text-primary);
+}
+
+form > div {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    font-size: var(--font-size-medium);
+    margin-bottom: 0.5rem;
+    color: var(--color-text-secondary);
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--color-border-light);
+    border-radius: 8px;
+    font-size: var(--font-size-small);
+    background-color: var(--color-background-light);
+    color: var(--color-text-black);
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 5px var(--color-accent);
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 1rem;
+    background-color: var(--color-accent);
+    color: var(--color-text-white);
+    border: none;
+    border-radius: 10px;
+    font-size: var(--font-size-medium);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: var(--color-button-active);
+}
+
+button[type="submit"]:active {
+    transform: scale(0.98);
+}
+
+/* Thêm style cho popup */
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Nền mờ */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup-content {
+    background-color: var(--color-background);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    color: var(--color-text-primary);
+}
+
+.popup-content h3 {
+    font-size: var(--font-size-h4);
+    margin-bottom: 1rem;
+    color: var(--color-text-primary);
+}
+
+.popup-content p {
+    font-size: var(--font-size-medium);
+    margin-bottom: 1.5rem;
+    color: var(--color-text-secondary);
+}
+
+.popup-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.popup-buttons button,
+.popup-content button {
+    padding: 0.75rem 1.5rem;
+    background-color: var(--color-accent);
+    color: var(--color-text-white);
+    border: none;
+    border-radius: 8px;
+    font-size: var(--font-size-medium);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.popup-buttons .btn_ookingoffline:hover,
+.popup-content .btn_ookingoffline:hover {
+    background-color: var(--color-button-active);
+}
+
+.popup-buttons .btn_ookingoffline:active,
+.popup-content .btn_ookingoffline:active {
+    transform: scale(0.98);
+}
+
+/* Style cho nút "Đặt phòng" (nếu cần khác với submit) */
+.btn_ookingoffline:not([type="submit"]) {
+    width: 100%;
+    padding: 1rem;
+    background-color: var(--color-accent);
+    color: var(--color-text-white);
+    border: none;
+    border-radius: 10px;
+    font-size: var(--font-size-medium);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 1rem;
+}
+
+.btn_ookingoffline:not([type="submit"]):hover {
+    background-color: var(--color-button-active);
+}
+
+.btn_ookingoffline:not([type="submit"]):active {
+    transform: scale(0.98);
+}

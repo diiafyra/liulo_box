@@ -9,9 +9,9 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const { isLoading, setIsLoading } = useLoading();
     const [user, setUser] = useState(null);
+    const [role, setRole] = useState('customer'); // Thêm state để lưu vai trò
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
-
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
@@ -19,12 +19,16 @@ export const AuthProvider = ({ children }) => {
                 const idToken = await firebaseUser.getIdToken();
                 try {
                     const response = await axios.post('http://localhost:5220/api/auth/login', { idToken });
+                    // alert(JSON.stringify(response.data, null, 2));
                     setUser({ ...firebaseUser, ...response.data });
+                    setRole(response.data.role || "ho"); // Lấy vai trò từ API
                 } catch (error) {
                     setUser(firebaseUser);
+                    setRole('customer');
                 }
             } else {
                 setUser(null);
+                setRole('customer');
             }
             setLoading(false);
         });
@@ -33,7 +37,8 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         console.log("User hiện tại:", user);
-    }, [user]);
+        console.log("Vai trò hiện tại:", role);
+    }, [user, role]);
 
     const loginWithGoogle = async () => {
         try {
@@ -42,12 +47,21 @@ export const AuthProvider = ({ children }) => {
             const result = await signInWithPopup(auth, googleProvider);
             const idToken = await result.user.getIdToken();
             console.log("Đăng nhập thành công bằng Google!");
-            
+    
+            // Gửi yêu cầu đăng ký với Firebase IdToken
             const response = await axios.post('http://localhost:5220/api/auth/register', { idToken, isGoogleAuth: true });
-            
+    
             if (response.status === 200) {
+                // Đăng nhập với IdToken nhận được từ Firebase
+                const loginResponse = await axios.post('http://localhost:5220/api/auth/login', { idToken });
+                const { uid, username, role } = loginResponse.data;
+    
+                setUser({ ...result.user, uid, username });
+                setRole(role || "hihi");  // Default role to 'customer' if none is provided
+                // alert(role);
                 alert("Đăng nhập thành công bằng Google!");
-                navigate('/');
+                if(role==="staff") navigate('/staff/dashboard');
+                else navigate('/');
             } else {
                 alert("Đăng nhập thất bại: " + response.data.Message);
             }
@@ -58,6 +72,7 @@ export const AuthProvider = ({ children }) => {
             setIsLoading(false);
         }
     };
+    
 
     const loginWithEmail = async (email, password) => {
         try {
@@ -75,9 +90,10 @@ export const AuthProvider = ({ children }) => {
             const idToken = await result.user.getIdToken();
             const response = await axios.post('http://localhost:5220/api/auth/login', { idToken });
             setUser({ ...result.user, ...response.data });
+            setRole(response.data.role || "hê");
+            // alert(JSON.stringify(response.data, null, 2));
             alert("Đăng nhập thành công!");
             navigate('/');
-
         } catch (error) {
             switch (error.code) {
                 case 'auth/invalid-credential':
@@ -103,10 +119,9 @@ export const AuthProvider = ({ children }) => {
         try {
             setIsLoading(true);
             const response = await axios.post('http://localhost:5220/api/auth/register', requestData);
-            console.log("Đăng ký thành công!", response.data);
+            console.log("Đăng ký thành công!", JSON.stringify(response.data, null, 2));
             alert("Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.");
             navigate('/');
-
         } catch (error) {
             alert("Lỗi đăng ký: " + (error.response ? error.response.data : error.message));
         } finally {
@@ -118,13 +133,14 @@ export const AuthProvider = ({ children }) => {
         signOut(auth).then(() => {
             alert("Đã đăng xuất thành công!");
             setUser(null);
+            setRole('customer');
         }).catch((error) => {
             alert("Lỗi khi đăng xuất: " + error.message);
         });
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, loginWithGoogle, loginWithEmail, registerWithEmail, logout }}>
+        <AuthContext.Provider value={{ user, role, loading, loginWithGoogle, loginWithEmail, registerWithEmail, logout }}>
             {!loading && children}
         </AuthContext.Provider>
     );

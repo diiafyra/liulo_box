@@ -13,5 +13,6 @@ public class Room
 
     public RoomCategory RoomCategory { get; set; }
     public List<RoomImage> RoomImages { get; set; } = new();
+    public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 
 }

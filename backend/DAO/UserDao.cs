@@ -10,6 +10,8 @@ namespace DAO
         Task<User> GetUserByUsernameAsync(string username);
         Task AddUserAsync(User user);
         Task UpdateUserAsync(User user);
+        Task<User> GetUserByPhoneNumberAsync(string phoneNumber);
+        Task<User> FindAsync(int userId);
     }
 
     public class UserDao : IUserDao
@@ -42,5 +44,18 @@ namespace DAO
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
         }
+
+        // Thêm vào UserDao.cs (implementation)
+        public async Task<User> GetUserByPhoneNumberAsync(string phoneNumber)
+        {
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber);
+        }
+        public async Task<User> FindAsync(int userId)
+        {
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == userId);
+        }
     }
+    
 }

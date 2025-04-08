@@ -99,5 +99,28 @@ namespace Services
                 throw new Exception("Error generating email verification link: " + ex.Message);
             }
         }
+        public async Task<string> GetUserRoleAsync(string firebaseUid)
+        {
+            try
+            {
+                // Lấy thông tin người dùng từ Firebase bằng Firebase UID
+                var userRecord = await _firebaseAuth.GetUserAsync(firebaseUid);
+
+                // Lấy custom claims của người dùng (nơi lưu quyền)
+                if (userRecord.CustomClaims != null && userRecord.CustomClaims.ContainsKey("role"))
+                {
+                    return userRecord.CustomClaims["role"]?.ToString(); // Trả về quyền nếu có
+                }
+                else
+                {
+                    return "default"; // Trả về quyền mặc định nếu không có custom claims
+                }
+            }
+            catch (Exception ex)
+            {
+                // Xử lý lỗi nếu không lấy được thông tin người dùng
+                throw new Exception($"Error fetching user role: {ex.Message}");
+            }
+        }
     }
 }

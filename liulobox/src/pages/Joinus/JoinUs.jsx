@@ -3,6 +3,7 @@ import { AuthContext } from '../../contexts/AuthContext';
 import { motion } from 'framer-motion';
 import { IonIcon } from '@ionic/react';
 import { logoGoogle } from 'ionicons/icons'; // Icon Google từ Ionic
+import RegisterForm from './FormRegister'; // Import RegisterForm component
 import './JoinUs.css'; // File CSS riêng để tùy chỉnh
 
 const JoinUs = () => {
@@ -10,19 +11,15 @@ const JoinUs = () => {
   const [activeTab, setActiveTab] = useState('login');
   const [loginUsername, setLoginUsername] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
-  const [regUsername, setRegUsername] = useState('');
-  const [regPassword, setRegPassword] = useState('');
-  const [regEmail, setRegEmail] = useState('');
-  const [regPhone, setRegPhone] = useState('');
 
   const handleLogin = async (e) => {
     e.preventDefault(); // Ngăn form submit mặc định để xử lý async
     await loginWithEmail(loginUsername, loginPassword);
   };
 
-  const handleRegister = async (e) => {
+  const handleRegister = async (e, username, password, email, phone) => {
     e.preventDefault(); // Ngăn form submit mặc định để xử lý async
-    await registerWithEmail(regUsername, regPassword, regEmail, regPhone);
+    await registerWithEmail(username, password, email, phone);
   };
 
   const tabVariants = {
@@ -33,10 +30,6 @@ const JoinUs = () => {
   const buttonVariants = {
     hover: { scale: 1.05, transition: { duration: 0.3 } },
     tap: { scale: 0.95 },
-  };
-
-  const inputVariants = {
-    focus: { scale: 1.02, borderColor: 'var(--color-accent)', transition: { duration: 0.3 } },
   };
 
   return (
@@ -76,7 +69,9 @@ const JoinUs = () => {
           <motion.div variants={tabVariants} initial="hidden" animate="visible" className="form-content">
             <form onSubmit={handleLogin}>
               <motion.input
-                variants={inputVariants}
+                variants={{
+                  focus: { scale: 1.02, borderColor: 'var(--color-accent)', transition: { duration: 0.3 } },
+                }}
                 whileFocus="focus"
                 type="text"
                 value={loginUsername}
@@ -86,7 +81,9 @@ const JoinUs = () => {
                 required
               />
               <motion.input
-                variants={inputVariants}
+                variants={{
+                  focus: { scale: 1.02, borderColor: 'var(--color-accent)', transition: { duration: 0.3 } },
+                }}
                 whileFocus="focus"
                 type="password"
                 value={loginPassword}
@@ -114,71 +111,13 @@ const JoinUs = () => {
             >
               <IonIcon icon={logoGoogle} className="google-icon" /> Login with Google
             </motion.button>
-            <p className="form-link">
-              <a href="#">Quên mật khẩu</a>
-            </p>
           </motion.div>
         )}
 
         {/* Register Tab */}
         {activeTab === 'register' && (
           <motion.div variants={tabVariants} initial="hidden" animate="visible" className="form-content">
-            <form onSubmit={handleRegister}>
-              <motion.input
-                variants={inputVariants}
-                whileFocus="focus"
-                type="text"
-                value={regUsername}
-                onChange={(e) => setRegUsername(e.target.value)}
-                placeholder="Username"
-                className="form-input"
-                required
-              />
-              <motion.input
-                variants={inputVariants}
-                whileFocus="focus"
-                type="password"
-                value={regPassword}
-                onChange={(e) => setRegPassword(e.target.value)}
-                placeholder="Password"
-                className="form-input"
-                required
-                pattern="(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}"
-                title="Password must be at least 8 characters with letters, numbers, and symbols"
-              />
-              <motion.input
-                variants={inputVariants}
-                whileFocus="focus"
-                type="email"
-                value={regEmail}
-                onChange={(e) => setRegEmail(e.target.value)}
-                placeholder="Email"
-                className="form-input"
-                required
-                pattern="[a-zA-Z0-9._%+-]+@gmail\.com"
-                title="Please enter a valid Gmail address"
-              />
-              <motion.input
-                variants={inputVariants}
-                whileFocus="focus"
-                type="text"
-                value={regPhone}
-                onChange={(e) => setRegPhone(e.target.value)}
-                placeholder="Phone (optional)"
-                className="form-input"
-                pattern="\+?\d{10,15}"
-                title="Phone number must be 10-15 digits (optional)"
-              />
-              <motion.button
-                variants={buttonVariants}
-                whileHover="hover"
-                whileTap="tap"
-                type="submit"
-                className="action-button"
-              >
-                Ignite
-              </motion.button>
-            </form>
+            <RegisterForm onSubmit={handleRegister} />
             <motion.button
               variants={buttonVariants}
               whileHover="hover"

@@ -36,8 +36,7 @@ public class RoomPricingDAO
         return pricing;
     }
 
-
-    private string GetDayType(DateTime date)
+    public string GetDayType(DateTime date)
     {
         // Nếu là cuối tuần, trả về "weekend", nếu không, trả về "weekday"
         return (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday) ? "weekend" : "weekday";

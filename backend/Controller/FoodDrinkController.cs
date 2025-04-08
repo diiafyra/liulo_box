@@ -37,11 +37,25 @@ public class FoodDrinkController : ControllerBase
         return item;
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Create(FoodDrink item)
+[HttpPost]
+    public async Task<IActionResult> Create([FromBody] FoodDrinkCreateDto dto)
     {
-        await _dao.AddAsync(item);
-        return CreatedAtAction(nameof(GetById), new { id = item.Id }, item);
+        if (dto == null)
+            return BadRequest("Dữ liệu không hợp lệ.");
+
+        // Ánh xạ từ DTO sang entity
+        var foodDrink = new FoodDrink
+        {
+            Name = dto.Name,
+            Price = dto.Price,
+            Description = dto.Description,
+            Category = dto.Category,
+            ImageUrl = dto.ImageUrl,
+            Stock = 0 // Khởi tạo tồn kho về 0
+        };
+
+        await _dao.AddAsync(foodDrink);
+        return CreatedAtAction(nameof(GetById), new { id = foodDrink.Id }, foodDrink);
     }
 
     [HttpPut("{id}")]
@@ -68,4 +82,12 @@ public class FoodDrinkController : ControllerBase
         await _dao.DeleteAsync(id);
         return NoContent();
     }
+}
+public class FoodDrinkCreateDto
+{
+    public string Name { get; set; }
+    public decimal Price { get; set; }
+    public string Description { get; set; }
+    public string Category { get; set; }
+    public string ImageUrl { get; set; }
 }

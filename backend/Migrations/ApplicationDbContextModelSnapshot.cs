@@ -41,6 +41,9 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsComplete")
+                        .HasColumnType("bit");
+
                     b.Property<string>("PaymentMethod")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -312,6 +315,53 @@ namespace backend.Migrations
                     b.ToTable("Rules");
                 });
 
+            modelBuilder.Entity("StockDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("FoodDrinkId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StockHistoryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FoodDrinkId");
+
+                    b.HasIndex("StockHistoryId");
+
+                    b.ToTable("StockDetails");
+                });
+
+            modelBuilder.Entity("StockHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.ToTable("StockHistories");
+                });
+
             modelBuilder.Entity("TimeSlotDefinition", b =>
                 {
                     b.Property<int>("Id")
@@ -366,10 +416,6 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -382,7 +428,7 @@ namespace backend.Migrations
             modelBuilder.Entity("Booking", b =>
                 {
                     b.HasOne("Room", "Room")
-                        .WithMany()
+                        .WithMany("Bookings")
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -477,6 +523,36 @@ namespace backend.Migrations
                     b.Navigation("TimeSlotDefinition");
                 });
 
+            modelBuilder.Entity("StockDetail", b =>
+                {
+                    b.HasOne("FoodDrink", "FoodDrink")
+                        .WithMany()
+                        .HasForeignKey("FoodDrinkId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("StockHistory", "StockHistory")
+                        .WithMany("StockDetails")
+                        .HasForeignKey("StockHistoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FoodDrink");
+
+                    b.Navigation("StockHistory");
+                });
+
+            modelBuilder.Entity("StockHistory", b =>
+                {
+                    b.HasOne("User", "User")
+                        .WithMany("StockHistories")
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TimeSlotDefinition", b =>
                 {
                     b.HasOne("PriceConfigVersion", "PriceConfigVersion")
@@ -497,6 +573,8 @@ namespace backend.Migrations
 
             modelBuilder.Entity("Room", b =>
                 {
+                    b.Navigation("Bookings");
+
                     b.Navigation("RoomImages");
                 });
 
@@ -505,9 +583,16 @@ namespace backend.Migrations
                     b.Navigation("RoomPricing");
                 });
 
+            modelBuilder.Entity("StockHistory", b =>
+                {
+                    b.Navigation("StockDetails");
+                });
+
             modelBuilder.Entity("User", b =>
                 {
                     b.Navigation("Bookings");
+
+                    b.Navigation("StockHistories");
                 });
 #pragma warning restore 612, 618
         }

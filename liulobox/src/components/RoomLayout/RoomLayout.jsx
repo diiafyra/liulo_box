@@ -63,8 +63,11 @@ const RoomLayout = ({ onComplete }) => {
     setSelectedRoom(room.id); // Lưu lại phòng đã chọn
     if (typeof onComplete === 'function') {
       onComplete(room);
-    } // Truyền toàn bộ phòng đã chọn
-    navigate(`/room-detail/${room.id}`); // Điều hướng đến trang chi tiết phòng
+      setSelectedRoom(room.id); // Lưu lại phòng đã chọn
+      onComplete(room); // Truyền toàn bộ phòng đã chọn
+    } else { // Truyền toàn bộ phòng đã chọn
+      navigate(`/room-detail/${room.id}`);
+    }// Điều hướng đến trang chi tiết phòng
     // alert(`Bạn đã chọn phòng ${room.roomNumber}`); // Thông báo phòng đã chọn
 
   };

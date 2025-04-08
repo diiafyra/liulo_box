@@ -10,7 +10,8 @@ public class User
     public string PhoneNumber { get; set; }
     public bool IsEmailVerified { get; set; }
     public bool IsActive { get; set; } = true;
-    public string Role { get; set; } = "customer";
 
     public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+    public ICollection<StockHistory> StockHistories { get; set; } = new List<StockHistory>();
+
 }
