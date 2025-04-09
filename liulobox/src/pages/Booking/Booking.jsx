@@ -7,24 +7,7 @@ import ServiceTabs from "../../components/ServiceTabs/ServiceTabs";
 import "./Booking.css";
 import { IonIcon } from "@ionic/react";
 import { arrowBack } from "ionicons/icons";
-
-// 🔧 Giả lập dữ liệu tab dịch vụ (nếu chưa được truyền từ props/context/API)
-const tabData = [
-  {
-    tabName: "Đồ uống",
-    items: [
-      { id: "drink1", name: "Trà sữa", rawPrice: 25000 },
-      { id: "drink2", name: "Cà phê", rawPrice: 30000 },
-    ],
-  },
-  {
-    tabName: "Đồ ăn",
-    items: [
-      { id: "food1", name: "Khoai tây chiên", rawPrice: 40000 },
-      { id: "food2", name: "Gà rán", rawPrice: 50000 },
-    ],
-  },
-];
+import axios from "axios";
 
 const Booking = () => {
   const [step, setStep] = useState(1);
@@ -32,6 +15,7 @@ const Booking = () => {
   const [bookingData, setBookingData] = useState({
     serviceQuantities: {},
     serviceTotal: 0,
+    selectedSlots: [], // Thêm selectedSlots vào bookingData
   });
 
   const handleUserInfoComplete = (userInfo) => {
@@ -64,15 +48,35 @@ const Booking = () => {
   };
 
   const handlePayment = async () => {
-    const totalAmount = (bookingData.totalCost || 0) + (bookingData.serviceTotal || 0);
+    const totalAmount = ((bookingData.totalCost || 0) + (bookingData.serviceTotal || 0));
     const paymentData = {
-      amount: totalAmount,
       orderId: `order-${Date.now()}`,
+      amount: totalAmount.toString(),
+      fullName: bookingData.userInfo?.fullName || "Khách hàng",
       orderInfo: `Thanh toán đặt phòng ${bookingData.selectedRoom?.id} và dịch vụ`,
-      redirectUrl: window.location.href,
     };
-    console.log("Gọi API MoMo với dữ liệu:", paymentData);
-    alert("Chuyển hướng sang MoMo để thanh toán! (Giả lập)");
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5220/api/payment/create-payment",
+        paymentData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const { payUrl } = response.data;
+      if (payUrl) {
+        window.location.href = payUrl;
+      } else {
+        alert("Không thể lấy URL thanh toán từ MoMo");
+      }
+    } catch (error) {
+      console.error("Lỗi khi gọi API thanh toán:", error.response?.data || error.message);
+      alert("Có lỗi xảy ra khi tạo thanh toán. Vui lòng thử lại!");
+    }
   };
 
   const handleTimelineClick = (newStep) => {
@@ -98,9 +102,13 @@ const Booking = () => {
             >
               <div className="timeline-icon">{s}</div>
               <p>
-                {s === 1 ? "Thông tin" :
-                 s === 2 ? "Chọn phòng" :
-                 s === 3 ? "Mua kèm" : "Thanh toán"}
+                {s === 1
+                  ? "Thông tin"
+                  : s === 2
+                  ? "Chọn phòng"
+                  : s === 3
+                  ? "Mua kèm"
+                  : "Thanh toán"}
               </p>
             </div>
           ))}
@@ -132,8 +140,8 @@ const Booking = () => {
             <TimeSelector
               selectedRoom={bookingData.selectedRoom}
               selectedDate={bookingData.selectedDate}
+              selectedSlots={bookingData.selectedSlots} // Truyền selectedSlots từ bookingData
               onComplete={handleTimeComplete}
-              selectedSlots={bookingData.selectedSlots}
             />
           )}
           {subStep > 1 && (
@@ -165,46 +173,24 @@ const Booking = () => {
           <h2>Xác nhận và thanh toán</h2>
           <div className="bill">
             <h3>Hóa đơn cuối cùng</h3>
-            <p>Ngày: {bookingData.selectedDate}</p>
-            <p>Phòng: {bookingData.selectedRoom?.id}</p>
-            <p>Thời gian: {bookingData.selectedSlots?.join(", ")}</p>
-            <p>
-              Tiền phòng: {(bookingData.totalCost / 1000)?.toLocaleString()}K
-            </p>
+            <p>Ngày: {bookingData.selectedDate || "Chưa chọn ngày"}</p>
+            <p>Phòng: {bookingData.selectedRoom?.id || "Chưa chọn phòng"}</p>
+            <p>Thời gian: {bookingData.selectedSlots?.join(", ") || "Chưa chọn thời gian"}</p>
+            <p>Tiền phòng: {(bookingData.totalCost / 1000)?.toLocaleString() || 0}K</p>
 
             {bookingData.serviceQuantities &&
               Object.keys(bookingData.serviceQuantities).length > 0 && (
                 <>
                   <h4>Dịch vụ:</h4>
-                  {Object.entries(bookingData.serviceQuantities).map(
-                    ([itemId, quantity]) => {
-                      if (quantity > 0) {
-                        const allItems = tabData
-                          .flatMap((tab) => tab.items)
-                          .filter((item) => item);
-                        const item = allItems.find((i) => i.id === itemId);
-                        return (
-                          item && (
-                            <p key={itemId}>
-                              {item.name}: {quantity} x {(item.rawPrice / 1000)}K ={" "}
-                              {(quantity * item.rawPrice) / 1000}K
-                            </p>
-                          )
-                        );
-                      }
-                      return null;
-                    }
-                  )}
                   <p>
-                    Tổng tiền dịch vụ:{" "}
-                    {(bookingData.serviceTotal / 1000)?.toLocaleString()}K
+                    Tổng tiền dịch vụ: {(bookingData.serviceTotal / 1000)?.toLocaleString() || 0}K
                   </p>
                 </>
               )}
 
             <p>
               <strong>
-                Tổng cộng: {(calculateFinalTotal() / 1000)?.toLocaleString()}K
+                Tổng cộng: {(calculateFinalTotal() / 1000)?.toLocaleString() || 0}K
               </strong>
             </p>
           </div>

@@ -1,6 +1,6 @@
+
 .room-list-container {
     background-color: var(--color-background);
-    /* Galaxy nền */
     margin: 0px;
 }
 
@@ -13,27 +13,24 @@
 .card.clickable {
     cursor: pointer;
     transition: transform 0.2s;
-  }
-  
-  .card.clickable:hover {
+}
+
+.card.clickable:hover {
     transform: scale(1.02);
-  }
-  
-  .card.disabled {
+}
+
+.card.disabled {
     cursor: not-allowed;
     opacity: 0.7;
-  }
+}
 
 .card {
     padding: 15px;
     color: var(--color-text-primary);
-    /* chữ chính */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border: 1px solid var(--color-border-light);
-    /* viền nhẹ */
     transition: transform 0.2s;
-    background-color: var(--color-container);
-    /* fallback */
+    background-color: var(--color-container); /* Universe làm fallback */
 }
 
 .card:hover {
@@ -42,20 +39,16 @@
 
 /* Trạng thái màu card theo bookingStatus */
 .card.red {
-    background-color: var(--color-booked-slot);
-    /* đỏ đậm - online */
+    background-color: var(--color-booked-slot); /* đỏ đậm - online */
 }
 
 .card.gray {
-    background-color: var(--color-border-light);
-    /* xám nhạt - offline */
-    color: var(--color-text-black);
-    /* chữ đen cho dễ đọc */
+    background-color: var(--color-border-light); /* xám nhạt - offline */
+    color: var(--color-text-black); /* chữ đen cho dễ đọc */
 }
 
 .card.green {
-    background-color: var(--color-button-active);
-    /* xanh đậm - phòng trống */
+    background-color: var(--color-button-active); /* xanh đậm - phòng trống */
 }
 
 .future-bookings ul {
@@ -65,4 +58,70 @@
 
 .future-bookings li {
     font-size: var(--font-size-tiny);
+}
+
+/* Popup cho Checkout/Thoát */
+.checkout-options {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--color-text-white); /* Nền trắng */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    gap: 15px;
+    z-index: 1001; /* Đảm bảo popup nằm trên overlay */
+}
+
+/* Overlay nền mờ */
+.checkout-options-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000; /* Nằm dưới popup nhưng trên các phần khác */
+}
+
+.btn_ookingoffline {
+    padding: 10px 20px;
+    background-color: var(--color-accent); /* Planetary cho button */
+    color: var(--color-text-primary);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: var(--font-size-small);
+    transition: background-color 0.2s;
+}
+
+.btn_ookingoffline:hover {
+    background-color: var(--color-button-active); /* Tông xanh đậm khi hover */
+}
+/* ServiceTabs Modal */
+.service-tabs-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--color-background); /* Nền trắng */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1001; /* Đảm bảo nằm trên overlay */
+    width: 90%; /* Responsive width */
+    max-width: 600px; /* Giới hạn chiều rộng tối đa */
+    max-height: 80vh; /* Giới hạn chiều cao tối đa */
+    overflow-y: auto; /* Cho phép cuộn nếu nội dung dài */
+}
+
+.service-title{
+    display: none;
+}
+.service-tabs-actions{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
 }

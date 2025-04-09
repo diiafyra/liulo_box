@@ -43,84 +43,94 @@ public class RoomDAO
 
     }
 
-    public async Task<List<RoomViewModel>> GetActiveRoomsWithPricingAsync()
+public async Task<List<RoomViewModel>> GetActiveRoomsWithPricingAsync()
+{
+//     TimeSpan timeOfDay = TimeSpan.Parse("10:00");
+// DateTime todayAt8AM = DateTime.Today + timeOfDay;
+
+    var now =  DateTime.Now;
+    var today = now.Date;
+    var isWeekend = now.DayOfWeek == DayOfWeek.Saturday || now.DayOfWeek == DayOfWeek.Sunday;
+    var dayType = isWeekend ? "weekend" : "weekday";
+
+    var rooms = await _context.Rooms
+        .Where(r => r.isActive)
+        .Include(r => r.RoomCategory)
+            .ThenInclude(rc => rc.RoomPricing)
+                .ThenInclude(rp => rp.TimeSlotDefinition)
+                    .ThenInclude(ts => ts.PriceConfigVersion)
+        .Include(r => r.Bookings)
+            .ThenInclude(b => b.BookingTimes)
+        .ToListAsync();
+
+    var result = rooms.Select(room =>
     {
-        var currentDate = DateTime.Now; // Sử dụng giờ địa phương thay vì UTC
-        var currentTimeOfDay = currentDate.TimeOfDay;
-        System.Console.WriteLine("Current Date: " + currentDate);
-        System.Console.WriteLine("Current Time: " + currentTimeOfDay);
+        // Tìm khung giờ áp dụng hiện tại
+        var matchingPrice = room.RoomCategory.RoomPricing
+            .FirstOrDefault(rp =>
+                rp.TimeSlotDefinition != null &&
+                rp.TimeSlotDefinition.PriceConfigVersion != null &&
+                rp.TimeSlotDefinition.PriceConfigVersion.StartDate <= now &&
+                rp.TimeSlotDefinition.PriceConfigVersion.EndDate >= now &&
+                rp.TimeSlotDefinition.StartTime <= now.TimeOfDay &&
+                rp.TimeSlotDefinition.EndTime >= now.TimeOfDay &&
+                rp.TimeSlotDefinition.DayType.ToLower() == dayType
+            );
 
-        var rooms = await _context.Rooms
-            .Where(r => r.isActive)
-            .Select(r => new RoomViewModel
-            {
-                RoomId = r.Id,
-                RoomNumber = r.RoomNumber,
-                RoomCategoryName = r.RoomCategory.Name,
-                CurrentPrice = r.RoomCategory.RoomPricing
-                    .Where(p => p.TimeSlotDefinition.StartTime <= currentTimeOfDay &&
-                               p.TimeSlotDefinition.EndTime >= currentTimeOfDay)
-                    .OrderBy(p => p.TimeSlotDefinition.StartTime)
-                    .Select(p => p.Price)
-                    .FirstOrDefault(),
-                CurrentIdPrice = r.RoomCategory.RoomPricing
-                    .Where(p => p.TimeSlotDefinition.StartTime <= currentTimeOfDay &&
-                               p.TimeSlotDefinition.EndTime >= currentTimeOfDay)
-                    .OrderBy(p => p.TimeSlotDefinition.StartTime)
-                    .Select(p => p.Id)
-                    .FirstOrDefault(),
-                BookingStatus = r.Bookings
-                    .Where(b => b.BookingStatus == "Confirmed" &&
-                               b.IsComplete == false &&
-                               b.BookingTimes.Any(bt => bt.StartDate.Date == currentDate.Date &&
-                                                       (bt.EndDate >= currentDate || bt.EndDate == null)))
-                    .Select(b => b.BookingType)
-                    .FirstOrDefault()
-            })
-            .ToListAsync();
+        // Tìm booking offline chưa hoàn thành (nếu có)
+        var offlineBooking = room.Bookings
+            .FirstOrDefault(b => b.BookingType == "offline" && !b.IsComplete);
 
-        // Lấy tất cả booking online trong tương lai của ngày hiện tại
-        var roomIds = rooms.Select(r => r.RoomId).ToList();
-        var futureBookings = await _context.BookingTimes
-            .Include(bt => bt.Booking)
-            .Where(bt => bt.StartDate.Date == currentDate.Date &&
-                         bt.EndDate > currentDate &&
-                         roomIds.Contains(bt.Booking.RoomId) &&
-                         bt.Booking.BookingType == "online" &&
-                         bt.Booking.BookingStatus == "Confirmed" &&
-                         !bt.Booking.IsComplete)
-            .Select(bt => new
-            {
-                RoomId = bt.Booking.RoomId,
-                BookingId = bt.BookingId,
-                StartTime = bt.StartDate,
-                EndTime = bt.EndDate
-            })
-            .ToListAsync();
-        System.Console.WriteLine("Future Bookings: " + futureBookings.Count);
+        // Tính trạng thái phòng
+        var isOnline = room.Bookings.Any(b =>
+            b.BookingType == "online" &&
+            b.BookingTimes.Any(bt => bt.StartDate <= now && bt.EndDate >= now));
 
-        // Gán vào từng phòng
-        foreach (var room in rooms)
-        {
-            room.FutureOnlineBookings = futureBookings
-                .Where(b => b.RoomId == room.RoomId)
-                .Select(b => new FutureBookingViewModel
+        var bookingStatus = isOnline ? "online"
+            : offlineBooking != null ? "offline"
+            : "empty";
+
+        // Booking online còn lại trong ngày
+        var futureOnlineBookings = room.Bookings
+            .Where(b => b.BookingType == "online")
+            .SelectMany(b => b.BookingTimes
+                .Where(bt => bt.EndDate > now && bt.StartDate.Date == today)
+                .Select(bt => new FutureBookingViewModel
                 {
-                    BookingId = b.BookingId,
-                    StartTime = b.StartTime,
-                    EndTime = b.EndTime
-                })
-                .OrderBy(b => b.StartTime)
-                .ToList();
-        }
+                    BookingId = b.Id,
+                    StartTime = bt.StartDate,
+                    EndTime = bt.EndDate
+                }))
+            .OrderBy(bt => bt.StartTime)
+            .ToList();
 
-        return rooms;
-    }
+        return new RoomViewModel
+        {
+            RoomId = room.Id,
+            RoomNumber = room.RoomNumber,
+            CategoryId = room.RoomCategoryId,
+            RoomCategoryName = room.RoomCategory.Name,
+
+            CurrentPrice = matchingPrice?.Price ?? 0,
+            CurrentIdPrice = matchingPrice?.Id ?? 0,
+
+            BookingId = offlineBooking?.Id ?? 0,
+            BookingStatus = bookingStatus,
+            FutureOnlineBookings = futureOnlineBookings
+        };
+    })
+    .ToList();
+
+    return result;
+}
+
 
 }
 public class RoomViewModel
 {
     public int RoomId { get; set; }
+    public int CategoryId { get; set; }
+    public int BookingId { get; set; }
     public string RoomNumber { get; set; }
     public string RoomCategoryName { get; set; }
     public decimal CurrentPrice { get; set; }

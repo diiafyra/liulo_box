@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import './OnlineBookingList.css';
+import InvoiceModal from './../../../components/staff/Invoice/InvoiceModal'; // Import InvoiceModal
 
 const OnlineBookingList = () => {
   const [bookings, setBookings] = useState([]);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]); // Ngày hiện tại
+
+  // Token giả định từ localStorage (thay bằng cách lấy thực tế nếu cần)
+  const token = localStorage.getItem('token');
 
   // Lấy danh sách booking từ API
   useEffect(() => {
@@ -13,7 +17,14 @@ const OnlineBookingList = () => {
 
   const fetchBookings = async (selectedDate) => {
     try {
-      const response = await fetch(`http://localhost:5220/api/bookings/online?date=${selectedDate}`);
+      const response = await fetch(`http://localhost:5220/api/bookings/online?date=${selectedDate}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`, // Thêm token nếu API yêu cầu xác thực
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Lỗi khi lấy danh sách booking');
+      }
       const data = await response.json();
       setBookings(data);
     } catch (error) {
@@ -31,16 +42,22 @@ const OnlineBookingList = () => {
     try {
       const response = await fetch(`http://localhost:5220/api/bookings/${bookingId}/confirm`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Thêm token nếu API yêu cầu
+        },
         body: JSON.stringify({ isComplete: true }),
       });
       if (response.ok) {
         alert('Booking confirmed!');
         setSelectedBooking(null);
         fetchBookings(date); // Cập nhật lại danh sách
+      } else {
+        throw new Error('Lỗi khi xác nhận booking');
       }
     } catch (error) {
       console.error('Error confirming booking:', error);
+      alert('Lỗi: ' + error.message);
     }
   };
 
@@ -53,7 +70,7 @@ const OnlineBookingList = () => {
         value={date}
         onChange={(e) => setDate(e.target.value)}
       />
-      
+
       {/* Danh sách booking */}
       <div className="booking-list">
         {bookings.map((booking) => (
@@ -63,48 +80,19 @@ const OnlineBookingList = () => {
             onClick={() => handleBookingClick(booking)}
           >
             <p>ID: {booking.id}</p>
-            <p>User: {booking.username}</p>
-            <p>Room: {booking.roomName}</p>
-            <p>Total: {booking.totalPrice.toLocaleString()} VND</p>
+            <p>User: {booking.user.username}</p>
+            <p>Room: {booking.room.roomNumber}</p>
           </div>
         ))}
       </div>
 
-      {/* Hóa đơn */}
+      {/* Hiển thị InvoiceModal khi chọn booking */}
       {selectedBooking && (
-        <div className="invoice">
-          <h2>Invoice</h2>
-          <p><strong>User:</strong> {selectedBooking.username}</p>
-          <p><strong>Room:</strong> {selectedBooking.roomName}</p>
-          <table>
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th>Units</th>
-                <th>Price</th>
-              </tr>
-            </thead>
-            <tbody>
-              {selectedBooking.times.map((time, index) => (
-                <tr key={index}>
-                  <td>Room Time ({time.start} - {time.end})</td>
-                  <td>1</td>
-                  <td>{time.price.toLocaleString()} VND</td>
-                </tr>
-              ))}
-              {selectedBooking.foodDrinks.map((item, index) => (
-                <tr key={index}>
-                  <td>{item.name}</td>
-                  <td>{item.units}</td>
-                  <td>{item.price.toLocaleString()} VND</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <p><strong>Total:</strong> {selectedBooking.totalPrice.toLocaleString()} VND</p>
-          <button onClick={() => handleConfirm(selectedBooking.id)}>Confirm</button>
-          <button onClick={() => setSelectedBooking(null)}>Close</button>
-        </div>
+        <InvoiceModal
+          bookingDetails={selectedBooking}
+          onClose={() => setSelectedBooking(null)}
+          onConfirm={() => handleConfirm(selectedBooking.id)}
+        />
       )}
     </div>
   );

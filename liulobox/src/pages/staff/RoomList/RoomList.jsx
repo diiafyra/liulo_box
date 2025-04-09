@@ -1,68 +1,197 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../../contexts/AuthContext';
+import InvoiceModal from '../../../components/staff/Invoice/InvoiceModal';
+import ServiceTabs from '../../../components/ServiceTabs/ServiceTabs'; // Import ServiceTabs
 import './RoomList.css';
 
 const RoomList = () => {
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const token = user?.accessToken;
+
   const [rooms, setRooms] = useState([]);
   const [filteredRooms, setFilteredRooms] = useState([]);
+  const [categories, setCategories] = useState(['Tất cả']);
   const [selectedCategory, setSelectedCategory] = useState('Tất cả');
-  const [categories, setCategories] = useState([]);
-  const navigate = useNavigate();
+
+  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [showCheckoutOptions, setShowCheckoutOptions] = useState(false);
+  const [bookingDetails, setBookingDetails] = useState(null);
+  const [showInvoice, setShowInvoice] = useState(false);
+  const [showServiceTabs, setShowServiceTabs] = useState(false); // State để hiển thị ServiceTabs
+  const [quantities, setQuantities] = useState({}); // State lưu số lượng sản phẩm
+
+  // Fetch danh sách phòng
+  const fetchRooms = async () => {
+    try {
+      const res = await fetch('http://localhost:5220/api/room/room-state');
+      const data = await res.json();
+      setRooms(data);
+      setFilteredRooms(data);
+
+      const unique = ['Tất cả', ...new Set(data.map(room => room.roomCategoryName))];
+      setCategories(unique);
+    } catch (error) {
+      console.error('Lỗi lấy danh sách phòng:', error);
+    }
+  };
 
   useEffect(() => {
-    fetch('http://localhost:5220/api/room/room-state')
-      .then(res => res.json())
-      .then(data => {
-        setRooms(data);
-        setFilteredRooms(data);
-        const uniqueCategories = ['Tất cả', ...new Set(data.map(room => room.roomCategoryName))];
-        setCategories(uniqueCategories);
-      })
-      .catch(err => console.error('Error fetching room data:', err));
+    fetchRooms();
   }, []);
 
+  // Lọc phòng theo loại
   useEffect(() => {
-    if (selectedCategory === 'Tất cả') {
-      setFilteredRooms(rooms);
-    } else {
-      const filtered = rooms.filter(room => room.roomCategoryName === selectedCategory);
-      setFilteredRooms(filtered);
-    }
+    const filtered = selectedCategory === 'Tất cả'
+      ? rooms
+      : rooms.filter(room => room.roomCategoryName === selectedCategory);
+    setFilteredRooms(filtered);
   }, [selectedCategory, rooms]);
 
-  const getCardColor = (bookingStatus) => {
-    switch (bookingStatus) {
+  const getCardColor = (status) => {
+    switch (status) {
       case 'online': return 'card red';
       case 'offline': return 'card gray';
       default: return 'card green';
     }
   };
 
+  
+
   const handleRoomClick = (room) => {
-    if (room.bookingStatus === 'online') return; // Không cho nhấp vào phòng đỏ
-    if (room.bookingStatus !== 'offline') {
-      navigate(`/staff/booking/offline/${room.roomId}/${room.currentIdPrice}`); // Chuyển hướng đến trang offline booking
+    if (room.bookingStatus === 'online') return;
+
+    if (room.bookingStatus === 'offline') {
+      setSelectedRoom(room);
+      setShowCheckoutOptions(true);
+    } else {
+      navigate(`/staff/booking/offline/${room.roomId}/${room.currentIdPrice}`);
+    }
+  };
+
+  const handleExit = () => {
+    setSelectedRoom(null);
+    setShowCheckoutOptions(false);
+    setShowServiceTabs(false); // Đóng ServiceTabs khi thoát
+  };
+
+
+  const handleCheckout = async () => {
+    handleExit();
+    if (!token || !selectedRoom) return;
+  
+    const payloadCheckout = {
+      bookingId: selectedRoom.bookingId,
+      roomId: selectedRoom.roomId,
+    };
+  
+    try {
+      const res = await fetch(`http://localhost:5220/api/bookings/checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(payloadCheckout),
+      });
+  
+      if (!res.ok) throw new Error('Không thể thực hiện checkout');
+      const data = await res.json();
+      setBookingDetails(data[0]);
+      setShowInvoice(true);
+  
+    } catch (error) {
+      console.error(error);
+      alert('Checkout thất bại: ' + error.message);
+    }
+  };
+  
+
+  // Xử lý khi nhấn nút "Kèm" để hiển thị ServiceTabs
+  const handleAddItems = () => {
+    setShowCheckoutOptions(false); // Ẩn checkout options
+    setShowServiceTabs(true); // Hiển thị ServiceTabs
+  };
+
+  // Xử lý khi thay đổi số lượng trong ServiceTabs
+  const handleQuantitiesChange = (updatedQuantities) => {
+    setQuantities(updatedQuantities);
+  };
+
+  // Xử lý gửi API khi nhấn nút "Xác nhận" trong ServiceTabs
+  const handleConfirmAddItems = async () => {
+    if (!selectedRoom || !token || Object.keys(quantities).length === 0) {
+      alert('Vui lòng chọn ít nhất một sản phẩm!');
+      return;
+    }
+
+    const payload = {
+      bookingId: selectedRoom.bookingId,
+      items: Object.entries(quantities).map(([itemId, units]) => ({
+        foodDrinkId: itemId,
+        units,
+      })),
+    };
+
+    try {
+      const res = await fetch('http://localhost:5220/api/bookings/add-fooddrinks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error('Không thể thêm đơn đồ ăn');
+      alert('Thêm đơn đồ ăn thành công!');
+      setShowServiceTabs(false);
+      setQuantities({}); // Reset quantities sau khi gửi
+      await fetchRooms(); // Cập nhật lại danh sách phòng
+    } catch (error) {
+      console.error(error);
+      alert('Thêm đơn thất bại: ' + error.message);
+    }
+  };
+
+  const handleConfirmCheckout = async () => {
+    alert('Xác nhận checkout?');
+    if (!bookingDetails || !token) {
+      alert('???');
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:5220/api/bookings/confirm/${bookingDetails.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error('Xác nhận checkout thất bại');
+
+      alert('Xác nhận checkout thành công');
+      setShowInvoice(false);
+      setShowCheckoutOptions(false);
+      setSelectedRoom(null);
+      await fetchRooms();
+    } catch (error) {
+      console.error(error);
+      alert('Lỗi xác nhận: ' + error.message);
     }
   };
 
   return (
     <div className="room-list-container">
-      <div style={{ padding: '0 20px', marginTop: '10px' }}>
-        <label htmlFor="category-filter" style={{ color: 'var(--color-text-primary)', fontWeight: 'bold', marginRight: '10px' }}>
-          Lọc theo loại phòng:
-        </label>
+      {/* Bộ lọc loại phòng */}
+      <div className="filter-container">
+        <label htmlFor="category-filter">Lọc theo loại phòng:</label>
         <select
           id="category-filter"
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
-          style={{
-            padding: '6px 12px',
-            borderRadius: '6px',
-            backgroundColor: 'var(--color-button)',
-            color: 'var(--color-text-black)',
-            fontWeight: 'bold',
-            border: '1px solid var(--color-border-light)'
-          }}
         >
           {categories.map(cat => (
             <option key={cat} value={cat}>{cat}</option>
@@ -70,16 +199,17 @@ const RoomList = () => {
         </select>
       </div>
 
+      {/* Lưới hiển thị phòng */}
       <div className="room-grid">
         {filteredRooms.map(room => (
           <div
             key={room.roomId}
-            className={`${getCardColor(room.bookingStatus)} ${room.bookingStatus === 'online' ? 'disabled' : 'clickable'}`}
+            className={`${getCardColor(room.bookingStatus)} ${room.bookingStatus !== 'online' ? 'clickable' : 'disabled'}`}
             onClick={() => handleRoomClick(room)}
           >
             <h3>{room.roomNumber}</h3>
             <p><strong>{room.roomCategoryName}</strong></p>
-            <p><strong>Giá hiện tại:</strong> {room.currentPrice.toLocaleString()} VND</p>
+            <p>Giá hiện tại: {room.currentPrice.toLocaleString()} VND</p>
 
             {room.futureOnlineBookings.length > 0 && (
               <div className="future-bookings">
@@ -97,6 +227,39 @@ const RoomList = () => {
           </div>
         ))}
       </div>
+
+      {/* Nút checkout/thoát khi chọn phòng offline */}
+      {showCheckoutOptions && selectedRoom && (
+        <div className="checkout-options">
+          <button onClick={handleCheckout}>Checkout</button>
+          <button onClick={handleAddItems}>Kèm</button>
+          <button onClick={handleExit}>Thoát</button>
+        </div>
+      )}
+
+      {/* Hiển thị ServiceTabs khi nhấn "Kèm" */}
+      {showServiceTabs && selectedRoom && (
+        <div className="service-tabs-modal">
+          <ServiceTabs
+            showQuantityControls={true}
+            quantities={quantities}
+            onQuantitiesChange={handleQuantitiesChange}
+          />
+          <div className="service-tabs-actions">
+            <button onClick={handleConfirmAddItems}>Xác nhận</button>
+            <button onClick={handleExit}>Thoát</button>
+          </div>
+        </div>
+      )}
+
+      {/* Hiển thị hóa đơn */}
+      {showInvoice && bookingDetails && (
+        <InvoiceModal
+          bookingDetails={bookingDetails}
+          onClose={() => setShowInvoice(false)}
+          onConfirm={handleConfirmCheckout}
+        />
+      )}
     </div>
   );
 };

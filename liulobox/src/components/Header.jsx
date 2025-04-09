@@ -18,7 +18,7 @@ function Header() {
   const navigate = useNavigate();
 
   const customerMenuItems = ['Trang chủ', 'Giới Thiệu', 'Sơ đồ Phòng - Giá', 'Đặt phòng', 'Liên hệ'];
-  const staffMenuItems = ['Trang chủ', 'Quản lý phòng', 'Quản lý đặt phòng', 'Báo cáo'];
+  const staffMenuItems = ['Trang chủ', 'Tạo tài khoản nhân viên', 'Quản lý đặt phòng', 'Nhập hàng','Trả phòng khách Online', 'Báo cáo'];
   const menuItems = isStaff ? staffMenuItems : customerMenuItems;
 
   const closeMenu = () => {
@@ -36,11 +36,17 @@ function Header() {
         case 'Trang chủ':
           navigate('/staff/dashboard');
           break;
-        case 'Quản lý phòng':
-          navigate('/staff/rooms');
+        case 'Tạo tài khoản nhân viên':
+          navigate('/staff/create-employee');
           break;
         case 'Quản lý đặt phòng':
-          navigate('/staff/bookings');
+          navigate('/staff/booking/offline');
+          break;
+        case 'Nhập hàng':
+          navigate('/staff/stockin');
+          break;
+        case 'Trả phòng khách Online':
+          navigate('/staff/booking/online');
           break;
         case 'Báo cáo':
           navigate('/staff/reports');
@@ -74,11 +80,11 @@ function Header() {
   const handleAccountItemClick = (item) => {
     setIsAccountOpen(false);
     switch (item) {
-      case 'Tài khoản':
-        navigate('/profile');
-        break;
-      case 'Đơn hàng':
-        navigate('/order');
+      // case 'Tài khoản':
+      //   navigate('/profile');
+      //   break;
+      case 'Lịch sử':
+        navigate('/history');
         break;
       case 'Đăng xuất':
         logout();
@@ -165,7 +171,7 @@ function Header() {
               exit={{ height: 0, opacity: 0, y: -10 }}
               transition={{ duration: 0.3, ease: 'easeInOut' }}
             >
-              {(isLoggedIn ? ['Tài khoản', 'Đơn hàng', 'Đăng xuất'] : ['Đăng Nhập/Đăng Ký']).map(
+              {(isLoggedIn ? [ 'Lịch sử', 'Đăng xuất'] : ['Đăng Nhập/Đăng Ký']).map(
                 (item, index) => (
                   <motion.li
                     key={item}

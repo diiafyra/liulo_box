@@ -52,13 +52,4 @@ public async Task<StockHistory> AddStockHistory(string userUid, List<StockDetail
 }
 
 
-    // Cập nhật tồn kho sản phẩm
-    public async Task IncreaseStock(int foodDrinkId, int quantity)
-    {
-        var foodDrink = await _context.FoodDrinks.FirstOrDefaultAsync(f => f.Id == foodDrinkId);
-        if (foodDrink == null) throw new Exception("FoodDrink not found");
-
-        foodDrink.Stock += quantity;
-        await _context.SaveChangesAsync();
-    }
 }

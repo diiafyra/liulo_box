@@ -24,11 +24,16 @@ function Menu({ isOpen, setIsOpen, onToggleOther, menuItems }) {
         case 'Trang chủ':
           navigate('/staff/dashboard');
           break;
-        case 'Quản lý phòng':
-          navigate('/staff/rooms');
+        case 'Tạo tài khoản nhân viên':
+          navigate('/staff/create-employee');
           break;
         case 'Quản lý đặt phòng':
-          navigate('/staff/bookings');
+          navigate('/staff/booking/offline');          break;
+        case 'Nhập hàng':
+          navigate('/staff/stockin');
+          break;
+        case 'Trả phòng khách Online':
+          navigate('/staff/booking/online');
           break;
         case 'Báo cáo':
           navigate('/staff/reports');

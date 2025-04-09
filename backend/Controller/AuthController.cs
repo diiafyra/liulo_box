@@ -194,7 +194,7 @@ namespace Controllers
             return new string(Enumerable.Repeat(chars, 8).Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        [Authorize(Roles = "staff")] // 👈 staff mới được tạo user
+        // [Authorize(Roles = "staff")] // 👈 staff mới được tạo user
         [HttpPost("create-user")]
         public async Task<IActionResult> CreateUser([FromBody] RegisterRequest request)
         {

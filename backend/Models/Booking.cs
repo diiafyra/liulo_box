@@ -10,7 +10,6 @@ public class Booking
     public string Describe { get; set; }
     public string BookingStatus { get; set; } // e.g. "Confirmed", "Cancelled"
     public string PaymentMethod { get; set; } // e.g. "Momo", "Cash", "Bank Transfer"
-    public decimal TotalPrice { get; set; }
     public bool IsComplete { get; set; } = false;
 
     public Room Room { get; set; }

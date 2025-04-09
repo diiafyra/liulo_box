@@ -6,7 +6,7 @@ import ServiceTabs from './../../../components/ServiceTabs/ServiceTabs';
 
 const OfflineBooking = () => {
     const { id: roomId } = useParams();
-    const { idprice: priceId } = useParams();
+    const { priceId: priceId } = useParams();
     const { user } = useContext(AuthContext);
 
     const [name, setName] = useState('');
@@ -85,6 +85,10 @@ const OfflineBooking = () => {
             console.error('RoomId không hợp lệ');
             return;
         }
+        if(priceId==null) {
+            console.error('PriceId không hợp lệ');
+        }
+        // alert(priceId);
 
         const bookingData = {
             userId: userId,
@@ -113,7 +117,7 @@ const OfflineBooking = () => {
             if (response.ok) {
                 const result = await response.json();
                 console.log('Booking thành công:', result);
-                alert('Đặt phòng. ID: ' + result.bookingID);
+                alert('Đặt phòng thành công!');
             } else {
                 console.error('Lỗi khi tạo booking:', response.statusText);
             }

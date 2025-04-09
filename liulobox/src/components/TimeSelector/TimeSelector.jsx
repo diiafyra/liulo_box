@@ -68,9 +68,11 @@ const TimeSelector = ({ selectedRoom, selectedDate, onComplete }) => {
           // Kiểm tra xem slot này đã được đặt chưa
           const isBooked = bookedData.some(
             (booking) =>
+              booking.BookingStatus === 'Confirmed' &&
               parseTime(booking.startDate.split('T')[1]) <= slotTime &&
               parseTime(booking.endDate.split('T')[1]) > slotTime
           );
+          
           slot.isBooked = isBooked;
         });
         setTimeSlots(slots);

@@ -32,6 +32,7 @@ public class RoleMiddleware
                 var decodedToken = await _firebaseService.VerifyTokenAsync(token);
                 var role = decodedToken.Claims.ContainsKey("role") ? decodedToken.Claims["role"].ToString() : "customer";
                 System.Console.WriteLine($"[🔥 RoleMiddleware] Token role: {role}");
+                System.Console.WriteLine($"[🔥 RoleMiddleware] Token uid: {decodedToken.Uid}");
                 var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, decodedToken.Uid),

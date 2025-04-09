@@ -60,14 +60,25 @@ public class BookingDAO
         await _context.SaveChangesAsync();
         return true;
     }
-    // Thêm mới: Tạo Booking
-    public async Task<Booking> CreateBookingAsync(Booking booking)
-    {
-        _context.Bookings.Add(booking);
-        await _context.SaveChangesAsync();
-        return booking;
-    }
 
+    public async Task<bool> ConfirmOfflineBookingAsync(int bookingId)
+    {
+        var booking = await _context.Bookings.FindAsync(bookingId);
+        if (booking == null)
+        {
+            return false; // Booking không tồn tại
+        }
+
+        if (booking.BookingStatus == "Confirmed")
+        {
+            return true; // Đã được xác nhận trước đó, không cần cập nhật
+        }
+
+        booking.BookingStatus = "Confirmed";
+        _context.Bookings.Update(booking);
+        await _context.SaveChangesAsync();
+        return true;
+    }
     public async Task<int> CreateOfflineBookingWithSPAsync(int userId, int roomId, string describe, string paymentMethod, DateTime newStartDate, int priceId)
     {
         var query = "sp_CreateBookingWithTime";
@@ -100,99 +111,97 @@ public class BookingDAO
     }
 
 
-    // Thêm mới: Tạo BookingTime
-    public async Task<BookingTime> AddBookingTimeAsync(int bookingId, DateTime startDate, int priceId)
-    {
-        var bookingTime = new BookingTime
-        {
-            BookingId = bookingId,
-            StartDate = startDate,
-            PriceId = priceId
-            // EndDate để trống vì chưa có
-        };
-
-        _context.BookingTimes.Add(bookingTime);
-        await _context.SaveChangesAsync();
-        return bookingTime;
-    }
-
     // Thêm mới: Tạo BookingFoodDrink
-    public async Task<List<BookingFoodDrink>> AddBookingFoodDrinksAsync(int bookingId, List<BookingFoodDrinkDto> foodDrinkDtos)
-    {
-        var bookingFoodDrinks = new List<BookingFoodDrink>();
+    // public async Task<List<BookingFoodDrink>> AddBookingFoodDrinksAsync(int bookingId, List<BookingFoodDrinkDto> foodDrinkDtos)
+    // {
+    //     var bookingFoodDrinks = new List<BookingFoodDrink>();
 
-        foreach (var dto in foodDrinkDtos)
+    //     foreach (var dto in foodDrinkDtos)
+    //     {
+    //         var foodDrink = await _context.FoodDrinks.FindAsync(dto.FoodDrinkId);
+    //         if (foodDrink == null)
+    //         {
+    //             throw new Exception($"FoodDrink với ID {dto.FoodDrinkId} không tồn tại");
+    //         }
+
+    //         decimal price = foodDrink.Price * dto.Units;
+
+    //         // Gọi stored procedure để chèn BookingFoodDrink
+    //         await _context.Database.ExecuteSqlRawAsync(
+    //             "EXEC AddBookingFoodDrinkAndDecreaseStock @BookingId = {0}, @FoodDrinkId = {1}, @Units = {2}, @Price = {3}",
+    //             bookingId, dto.FoodDrinkId, dto.Units, price
+    //         );
+
+    //         // Tạo object để trả về (không lưu vào DB lần nữa)
+    //         bookingFoodDrinks.Add(new BookingFoodDrink
+    //         {
+    //             BookingId = bookingId,
+    //             FoodDrinkId = dto.FoodDrinkId,
+    //             Units = dto.Units,
+    //             Price = price
+    //         });
+    //     }
+
+    //     return bookingFoodDrinks;
+    // }
+
+    public async Task<bool> CheckoutOfflineBookingAsync(int roomId, int bookingId, DateTime currentTime)
+    {
+        try
         {
-            var foodDrink = await _context.FoodDrinks.FindAsync(dto.FoodDrinkId);
-            if (foodDrink == null)
+            using (var conn = new SqlConnection(_context.Database.GetConnectionString()))
+            using (var command = new SqlCommand("ExtendOfflineBookingTimeIfNeeded", conn))
             {
-                throw new Exception($"FoodDrink với ID {dto.FoodDrinkId} không tồn tại");
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@RoomId", roomId);
+                command.Parameters.AddWithValue("@BookingId", bookingId);
+                command.Parameters.AddWithValue("@CurrentTime", currentTime);
+
+                await conn.OpenAsync();
+                await command.ExecuteNonQueryAsync(); // chỉ chạy, không cần đọc gì
+
+                return true; // thành công
             }
-
-            decimal price = foodDrink.Price * dto.Units;
-
-            // Gọi stored procedure để chèn BookingFoodDrink
-            await _context.Database.ExecuteSqlRawAsync(
-                "EXEC AddBookingFoodDrinkAndDecreaseStock @BookingId = {0}, @FoodDrinkId = {1}, @Units = {2}, @Price = {3}",
-                bookingId, dto.FoodDrinkId, dto.Units, price
-            );
-
-            // Tạo object để trả về (không lưu vào DB lần nữa)
-            bookingFoodDrinks.Add(new BookingFoodDrink
-            {
-                BookingId = bookingId,
-                FoodDrinkId = dto.FoodDrinkId,
-                Units = dto.Units,
-                Price = price
-            });
         }
-
-        return bookingFoodDrinks;
+        catch (Exception ex)
+        {
+            // Ghi log nếu cần: _logger.LogError(ex, "Checkout failed");
+            throw new Exception("Có lỗi xảy ra khi thực hiện checkout: " + ex.Message);
+        }
     }
 
-    // Thêm mới: Tìm PriceId dựa trên thời gian hiện tại
-    public async Task<int> GetPriceIdForCurrentTimeAsync(int roomCategoryId, DateTime currentTime)
+    public async Task<List<Booking>> GetBookingsWithDetailsAsync(int bookingId)
     {
-        System.Console.WriteLine("Current Time: " + currentTime.ToString("yyyy-MM-dd HH:mm:ss"));
-        // Tìm PriceConfigVersion hiện tại
-        var priceConfig = await _context.PriceConfigVersions
-            .Where(pcv => pcv.StartDate <= currentTime && pcv.EndDate >= currentTime)
-            .FirstOrDefaultAsync();
-        System.Console.WriteLine("PriceConfigVersion: " + priceConfig?.Id);
-        if (priceConfig == null)
-        {
-            return 0; // Không tìm thấy phiên bản giá
-        }
-
-        // Xác định loại ngày (weekday hoặc weekend)
-        string dayType = currentTime.DayOfWeek == DayOfWeek.Saturday || currentTime.DayOfWeek == DayOfWeek.Sunday
-            ? "weekend"
-            : "weekday";
-        System.Console.WriteLine("Day Type: " + dayType);
-        // Chuyển thời gian hiện tại thành TimeSpan
-        TimeSpan currentTimeSpan = currentTime.TimeOfDay;
-
-        // Tìm TimeSlotDefinition phù hợp
-        var timeSlot = await _context.TimeSlotDefinitions
-            .Where(tsd => tsd.PriceConfigVersionId == priceConfig.Id
-                       && tsd.DayType == dayType
-                       && tsd.StartTime <= currentTimeSpan
-                       && tsd.EndTime >= currentTimeSpan)
-            .FirstOrDefaultAsync();
-
-        System.Console.WriteLine("TimeSlotDefinition: " + timeSlot?.Id);
-        if (timeSlot == null)
-        {
-            return 0; // Không tìm thấy khung giờ
-        }
-
-        // Tìm RoomPricing
-        var roomPricing = await _context.RoomPricings
-            .Where(rp => rp.RoomCategoryId == roomCategoryId && rp.TimeSlotDefinitionId == timeSlot.Id)
-            .FirstOrDefaultAsync();
-        System.Console.WriteLine("RoomPricing: " + roomPricing?.Id);
-        return roomPricing?.Id ?? 0;
+        return await _context.Bookings
+            .Include(b => b.User) 
+            .Include(b => b.Room)
+            .Include(b => b.BookingTimes)
+                .ThenInclude(bt => bt.RoomPricing)
+            .Include(b => b.BookingFoodDrinks)
+                .ThenInclude(bfd => bfd.FoodDrink) 
+            .Where(b => bookingId == b.Id)
+            .ToListAsync();
     }
+
+//gây lỗi hoặc trả về rỗng nếu Entity Framework không thể dựng quan hệ navigation giữa Booking.User.FirebaseUid .Where(b => b.User.FirebaseUid == firebaseUid)
+
+    public async Task<List<Booking>> GetAllBookingsByUserUidAsync(string firebaseUid)
+    {
+        System.Console.WriteLine("Firebase UID: " + firebaseUid);
+
+        return await _context.Bookings
+            .Where(b => _context.Users
+                .Any(u => u.Id == b.UserId && u.FirebaseUid == firebaseUid))
+            .Include(b => b.User)
+            .Include(b => b.Room)
+            .Include(b => b.BookingTimes)
+                .ThenInclude(bt => bt.RoomPricing)
+            .Include(b => b.BookingFoodDrinks)
+                .ThenInclude(bfd => bfd.FoodDrink)
+            .ToListAsync();
+    }
+
+
 }
 
 // DTO để nhận dữ liệu BookingFoodDrink từ frontend

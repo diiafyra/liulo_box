@@ -365,3 +365,4 @@ D:\Download241222\cmc5\web\musicbox\backend\obj\Debug\net9.0\backend.pdb
 D:\Download241222\cmc5\web\musicbox\backend\obj\Debug\net9.0\backend.genruntimeconfig.cache
 D:\Download241222\cmc5\web\musicbox\backend\obj\Debug\net9.0\ref\backend.dll
 D:\Download241222\cmc5\web\musicbox\backend\bin\Debug\net9.0\liulobox-firebase-adminsdk-fbsvc-d132ce7b56.json
+D:\Download241222\cmc5\web\musicbox\backend\bin\Debug\net9.0\RestSharp.dll

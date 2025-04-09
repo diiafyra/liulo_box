@@ -19,7 +19,7 @@ const Footer = () => {
                     </a>
                 </div>
 
-                
+
                 <div className="footer-content">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -63,6 +63,21 @@ const Footer = () => {
                         <p><IonIcon icon={mailSharp} /> <a href="mailto:tro0852885411@gmail.com">tro0852885411@gmail.com</a></p>
                     </motion.div>
 
+                    <motion.div className="footer-section map-section"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.6 }}
+                    >
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d29803.94176895018!2d105.76359993802114!3d20.972877335148272!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ad0008bcb81f%3A0xc6ad21c94720b137!2zSG9tZSBCb3ggU3R1ZGlvIEjDoCDEkMO0bmc!5e0!3m2!1svi!2s!4v1744185452148!5m2!1svi!2s"
+                            width="100%"
+                            height="250"
+                            style={{ border: 0 }}
+                            allowFullScreen=""
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                        />
+                    </motion.div>
 
 
                 </div>

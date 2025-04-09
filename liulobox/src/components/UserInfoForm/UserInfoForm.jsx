@@ -1,15 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import './UserInfoForm.css';
-
+import { AuthContext } from '../../contexts/AuthContext';
+import { useContext } from 'react';
 const UserInfoForm = ({ onComplete, userInfo }) => {
   const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
 
+  const { user } = useContext(AuthContext); // Lấy thông tin người dùng từ context
   useEffect(() => {
     if (userInfo) {
-      setFormData(userInfo); // Khi nhận được dữ liệu, cập nhật lại form
+      setFormData(userInfo); // Ưu tiên dùng userInfo nếu có
+    } else if (user) {
+      setFormData({
+        name: user.displayName || '',
+        email: user.email || '',
+        phone: ''  // phone có thể để trống nếu chưa có
+      });
     }
-  }, [userInfo]);
+  }, [userInfo, user]);
+  
 
   const inputVariants = {
     focus: { scale: 1.02, borderColor: 'var(--color-accent)', transition: { duration: 0.3 } },
@@ -54,11 +63,10 @@ const UserInfoForm = ({ onComplete, userInfo }) => {
           variants={inputVariants}
           whileFocus="focus"
           type="text"
-          placeholder="Số điện thoại"
+          placeholder="Số điện thoại (có thể để trống)"
           value={formData.phone}
           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
           className="form-input"
-          required
           pattern="\+?\d{10,15}"
           title="Số điện thoại phải có 10-15 chữ số"
         />

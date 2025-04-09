@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Services;
 using DAO;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,10 +25,10 @@ builder.Services.AddScoped<BookingDAO>();
 builder.Services.AddScoped<RoomCategoryDAO>(); // Đăng ký BookingDAO
 builder.Services.AddScoped<FoodDrinkDAO>();
 builder.Services.AddScoped<StockHistoryDao>(); // Đăng ký StockHistoryDao
-
+builder.Services.AddScoped<BookingFoodDrinkDAO>(); // Đăng ký BookingFoodDrinkDAO
 
 builder.Services.AddSingleton<EmailService>();
-
+// builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer(options =>
     {
@@ -56,6 +57,8 @@ builder.Services.AddCors(options =>
                           .AllowCredentials());  // Cho phép gửi chứng thực (cookies, token)
 });
 
+builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
+builder.Services.AddScoped<IMomoService, MomoService>();
 
 
 var app = builder.Build();
