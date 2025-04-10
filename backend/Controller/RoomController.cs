@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -18,7 +19,8 @@ public class RoomController : ControllerBase
         _bookingDAO = bookingDAO;
     }
 
-    // Lấy danh sách tất cả phòng
+    // Lấy danh sách tất cả phòng, dùng trong lấy tất cả danh phòng active ở cả 
+    // giao diện người dùng và staff
     [HttpGet]
     public async Task<ActionResult<List<Room>>> GetActiveRooms()
     {
@@ -27,6 +29,7 @@ public class RoomController : ControllerBase
     }
 
     // Lấy phòng theo ID
+    // Dùng trong chi tiết phòng ở giao diện người dùng
     [HttpGet("{roomId}")]
     public async Task<ActionResult<Room>> GetRoom(int roomId)
     {
@@ -39,10 +42,22 @@ public class RoomController : ControllerBase
     }
 
     // Lấy giá phòng theo RoomCategory và TimeSlot
-    [HttpGet("pricing/{roomCategoryId}")]
-    public async Task<ActionResult<List<RoomPricing>>> GetRoomPricing(int roomCategoryId)
+    // [HttpGet("pricing/{roomCategoryId}")]
+    // public async Task<ActionResult<List<RoomPricing>>> GetRoomPricing(int roomCategoryId)
+    // {
+    //     var pricing = await _roomPricingDAO.GetPricingForRoomAsync(roomCategoryId);
+    //     if (pricing == null || !pricing.Any())
+    //     {
+    //         return NotFound("Không tìm thấy giá cho phòng này.");
+    //     }
+    //     return Ok(pricing);
+    // }
+
+    // Dùng trong chọn giờ đặt phòng ở giao diện người dùng
+    [HttpGet("pricing/{roomCategoryId}/{date}")]
+    public async Task<ActionResult<List<RoomPricing>>> GetRoomPricingByDate(int roomCategoryId, DateTime date)
     {
-        var pricing = await _roomPricingDAO.GetPricingForRoomAsync(roomCategoryId);
+        var pricing = await _roomPricingDAO.GetPricingForRoomAndDateAsync(roomCategoryId, date);
         if (pricing == null || !pricing.Any())
         {
             return NotFound("Không tìm thấy giá cho phòng này.");
@@ -50,19 +65,9 @@ public class RoomController : ControllerBase
         return Ok(pricing);
     }
 
-[HttpGet("pricing/{roomCategoryId}/{date}")]
-public async Task<ActionResult<List<RoomPricing>>> GetRoomPricingByDate(int roomCategoryId, DateTime date)
-{
-    var pricing = await _roomPricingDAO.GetPricingForRoomAndDateAsync(roomCategoryId, date);
-    if (pricing == null || !pricing.Any())
-    {
-        return NotFound("Không tìm thấy giá cho phòng này.");
-    }
-    return Ok(pricing);
-}
 
-
-
+    // Dùng trong chọn giờ đặt phòng ở giao diện người dùng
+    // Lấy danh sách thời gian đã bị đặt trước cho phòng theo ID
     [HttpGet("booked/{roomId}")]
     public async Task<ActionResult<List<BookingTime>>> GetBookedTimes(int roomId, DateTime date)
     {
@@ -71,7 +76,8 @@ public async Task<ActionResult<List<RoomPricing>>> GetRoomPricingByDate(int room
         return Ok(bookedTimes);
     }
 
-    
+    // Dùng trong lấy danh sách phòng active ở giao diện staff
+    [Authorize(Roles = "staff")]
     [HttpGet("room-state")]
     public async Task<ActionResult<List<RoomViewModel>>> GetStateRooms()
     {

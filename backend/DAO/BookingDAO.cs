@@ -1,15 +1,24 @@
 using System.Data;
+using System.Security.Claims;
+using DAO;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 public class BookingDAO
 {
     private readonly ApplicationDbContext _context;
-
-    public BookingDAO(ApplicationDbContext context)
+    private readonly BookingFoodDrinkDAO _bookingFoodDrinkDAO;
+    private readonly IUserDao _userDao;
+    private readonly IUserContextService _userContextService;
+    public BookingDAO(ApplicationDbContext context, BookingFoodDrinkDAO bookingFoodDrinkDAO, IUserDao userDao, IUserContextService userContextService)
     {
         _context = context;
+        _bookingFoodDrinkDAO = bookingFoodDrinkDAO;
+        _userDao = userDao;
+        _userContextService = userContextService;
     }
+
+
 
     // Kiểm tra xem phòng đã được đặt trong khung giờ này chưa
     public async Task<List<BookingTime>> GetBookedTimesAsync(int roomId, DateTime date)
@@ -42,20 +51,41 @@ public class BookingDAO
                 .ThenInclude(bfd => bfd.FoodDrink)
             .ToListAsync();
     }
-    public async Task<bool> ConfirmBookingAsync(int bookingId)
+    public async Task<bool> ConfirmBookingAsync(int bookingId, bool isConfirmed)
     {
+
         var booking = await _context.Bookings.FindAsync(bookingId);
         if (booking == null)
         {
             return false; // Booking không tồn tại
         }
+        if (isConfirmed)
+        {
+            booking.BookingStatus = "Confirmed";
+        }
+        else
+        {
+            booking.BookingStatus = "Cancelled";
+        }
+        _context.Bookings.Update(booking);
+        await _context.SaveChangesAsync();
+        return true;
+    }
 
+    public async Task<bool> CompleteOlineBookingAsync(int bookingId)
+    {
+
+        var booking = await _context.Bookings.FindAsync(bookingId);
+        if (booking == null)
+        {
+            return false; // Booking không tồn tại
+        }
         if (booking.IsComplete)
         {
             return true; // Đã được xác nhận trước đó, không cần cập nhật
         }
-
         booking.IsComplete = true;
+
         _context.Bookings.Update(booking);
         await _context.SaveChangesAsync();
         return true;
@@ -173,17 +203,17 @@ public class BookingDAO
     public async Task<List<Booking>> GetBookingsWithDetailsAsync(int bookingId)
     {
         return await _context.Bookings
-            .Include(b => b.User) 
+            .Include(b => b.User)
             .Include(b => b.Room)
             .Include(b => b.BookingTimes)
                 .ThenInclude(bt => bt.RoomPricing)
             .Include(b => b.BookingFoodDrinks)
-                .ThenInclude(bfd => bfd.FoodDrink) 
+                .ThenInclude(bfd => bfd.FoodDrink)
             .Where(b => bookingId == b.Id)
             .ToListAsync();
     }
 
-//gây lỗi hoặc trả về rỗng nếu Entity Framework không thể dựng quan hệ navigation giữa Booking.User.FirebaseUid .Where(b => b.User.FirebaseUid == firebaseUid)
+    //gây lỗi hoặc trả về rỗng nếu Entity Framework không thể dựng quan hệ navigation giữa Booking.User.FirebaseUid .Where(b => b.User.FirebaseUid == firebaseUid)
 
     public async Task<List<Booking>> GetAllBookingsByUserUidAsync(string firebaseUid)
     {
@@ -201,6 +231,89 @@ public class BookingDAO
             .ToListAsync();
     }
 
+    public async Task<int> CreateOnlineBooking(BookingOnlineDto request)
+    {
+        // Lấy FirebaseUid từ claim
+        var firebaseUid = _userContextService.GetFirebaseUid();
+
+        if (string.IsNullOrEmpty(firebaseUid))
+        {
+            throw new Exception("Không lấy được Firebase UID từ token.");
+        }
+
+        // Lấy user từ Firebase UID
+        var appUser = await _userDao.GetUserByFirebaseUidAsync(firebaseUid);
+        if (appUser == null)
+        {
+            throw new Exception("Người dùng không tồn tại.");
+        }
+
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            var booking = new Booking
+            {
+                UserId = appUser.Id, // <-- dùng User.Id thật từ database
+                RoomId = request.RoomId,
+                BookingType = "online",
+                Describe = "Booking online",
+                BookingStatus = "unpaid",
+                PaymentMethod = "Momo",
+                IsComplete = false
+            };
+
+            _context.Bookings.Add(booking);
+            await _context.SaveChangesAsync();
+
+            if (request.TimeSlots != null && request.TimeSlots.Any())
+            {
+                await AddBookingTimesAsync(booking.Id, request.SelectedDate, request.TimeSlots);
+            }
+
+            if (request.FoodDrinks != null && request.FoodDrinks.Any())
+            {
+                var foodDrinkDtos = request.FoodDrinks
+                    .Select(kv => new BookingFoodDrinkDto
+                    {
+                        FoodDrinkId = kv.Key,
+                        Units = kv.Value.Units,
+                        RawPrice = kv.Value.RawPrice
+                    })
+                    .ToList();
+
+                await _bookingFoodDrinkDAO.AddOrUpdateBookingFoodDrinksAsync(booking.Id, foodDrinkDtos);
+            }
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return booking.Id;
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            throw new Exception("Error creating booking: " + ex.Message);
+        }
+    }
+
+    private async Task AddBookingTimesAsync(int bookingId, string selectedDate, List<TimeSlotDto> timeSlots)
+    {
+        var date = DateTime.Parse(selectedDate);
+        foreach (var slot in timeSlots)
+        {
+            var bookingTime = new BookingTime
+            {
+                BookingId = bookingId,
+                StartDate = date + TimeSpan.Parse(slot.StartTime),
+                EndDate = date + TimeSpan.Parse(slot.EndTime),
+                PriceId = slot.PriceId
+            };
+            _context.BookingTimes.Add(bookingTime);
+        }
+        await _context.SaveChangesAsync();
+    }
+
+
 
 }
 
@@ -209,4 +322,19 @@ public class BookingFoodDrinkDto
 {
     public int FoodDrinkId { get; set; }
     public int Units { get; set; }
+    public decimal RawPrice { get; set; } // Có thể không cần thiết nếu tính toán từ FoodDrink
+}
+public class BookingOnlineDto
+{
+    public string SelectedDate { get; set; }
+    public int RoomId { get; set; }
+    public List<TimeSlotDto> TimeSlots { get; set; }
+    public Dictionary<int, BookingFoodDrinkDto> FoodDrinks { get; set; }
+}
+
+public class TimeSlotDto
+{
+    public string StartTime { get; set; }
+    public string EndTime { get; set; }
+    public int PriceId { get; set; }
 }

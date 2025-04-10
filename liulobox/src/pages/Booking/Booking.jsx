@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import UserInfoForm from "../../components/UserInfoForm/UserInfoForm";
 import DatePicker from "../../components/DatePicker/DatePicker";
 import RoomLayout from "../../components/RoomLayout/RoomLayout";
@@ -7,16 +7,15 @@ import ServiceTabs from "../../components/ServiceTabs/ServiceTabs";
 import "./Booking.css";
 import { IonIcon } from "@ionic/react";
 import { arrowBack } from "ionicons/icons";
+import { AuthContext } from "../../contexts/AuthContext";
 import axios from "axios";
 
 const Booking = () => {
+  const { user } = useContext(AuthContext);
   const [step, setStep] = useState(1);
   const [subStep, setSubStep] = useState(1);
-  const [bookingData, setBookingData] = useState({
-    serviceQuantities: {},
-    serviceTotal: 0,
-    selectedSlots: [], // Thêm selectedSlots vào bookingData
-  });
+
+  const [bookingData, setBookingData] = useState({});
 
   const handleUserInfoComplete = (userInfo) => {
     setBookingData({ ...bookingData, userInfo });
@@ -48,34 +47,76 @@ const Booking = () => {
   };
 
   const handlePayment = async () => {
-    const totalAmount = ((bookingData.totalCost || 0) + (bookingData.serviceTotal || 0));
-    const paymentData = {
-      orderId: `order-${Date.now()}`,
-      amount: totalAmount.toString(),
-      fullName: bookingData.userInfo?.fullName || "Khách hàng",
-      orderInfo: `Thanh toán đặt phòng ${bookingData.selectedRoom?.id} và dịch vụ`,
+    // 1. Chuẩn bị dữ liệu gửi tới API tạo booking
+    const bookingRequest = {
+      selectedDate: bookingData.selectedDate,
+      roomId: bookingData.selectedRoom?.id,
+      timeSlots: bookingData.selectedSlots.map((slot) => ({
+        startTime: slot.startTime,
+        endTime: slot.endTime,
+        priceId: slot.priceId,
+      })),
+      foodDrinks: bookingData.serviceQuantities
+        ? Object.fromEntries(
+            Object.entries(bookingData.serviceQuantities).map(([id, data]) => [
+              id,
+              {
+                quantity: data.quantity,
+                rawPrice: data.rawPrice,
+              },
+            ])
+          )
+        : {},
     };
 
     try {
-      const response = await axios.post(
+      // 2. Gửi request tạo booking
+      const bookingResponse = await axios.post(
+        "http://localhost:5220/api/bookings/online", // Endpoint của bạn
+        bookingRequest,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user.accessToken}`
+          },
+        }
+      );
+
+      const { bookingId } = bookingResponse.data; // Lấy bookingId từ response
+      if (!bookingId) {
+        throw new Error("Không nhận được bookingId từ server");
+      }
+
+      // 3. Chuẩn bị dữ liệu thanh toán
+      const totalAmount = (bookingData.totalCost || 0) + (bookingData.serviceTotal || 0);
+      const paymentData = {
+        orderId: `liulobox-${bookingId}-${Date.now()}`,
+        amount: totalAmount.toString(),
+        fullName: bookingData.userInfo?.fullName || "Khách hàng",
+        orderInfo: bookingId.toString(),
+      };
+
+      // 4. Gửi request tạo thanh toán MoMo
+      const paymentResponse = await axios.post(
         "http://localhost:5220/api/payment/create-payment",
         paymentData,
         {
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${user.accessToken}`
           },
         }
       );
 
-      const { payUrl } = response.data;
+      const { payUrl } = paymentResponse.data;
       if (payUrl) {
-        window.location.href = payUrl;
+        window.location.href = payUrl; // Chuyển hướng sang MoMo
       } else {
         alert("Không thể lấy URL thanh toán từ MoMo");
       }
     } catch (error) {
-      console.error("Lỗi khi gọi API thanh toán:", error.response?.data || error.message);
-      alert("Có lỗi xảy ra khi tạo thanh toán. Vui lòng thử lại!");
+      console.error("Lỗi khi xử lý thanh toán:", error.response?.data || error.message);
+      alert("Có lỗi xảy ra khi tạo booking hoặc thanh toán. Vui lòng thử lại!");
     }
   };
 
@@ -140,7 +181,7 @@ const Booking = () => {
             <TimeSelector
               selectedRoom={bookingData.selectedRoom}
               selectedDate={bookingData.selectedDate}
-              selectedSlots={bookingData.selectedSlots} // Truyền selectedSlots từ bookingData
+              selectedSlots={bookingData.selectedSlots}
               onComplete={handleTimeComplete}
             />
           )}
@@ -175,7 +216,11 @@ const Booking = () => {
             <h3>Hóa đơn cuối cùng</h3>
             <p>Ngày: {bookingData.selectedDate || "Chưa chọn ngày"}</p>
             <p>Phòng: {bookingData.selectedRoom?.id || "Chưa chọn phòng"}</p>
-            <p>Thời gian: {bookingData.selectedSlots?.join(", ") || "Chưa chọn thời gian"}</p>
+            <p>
+              Thời gian:{" "}
+              {bookingData.selectedSlots?.map((s) => s.slot).join(", ") ||
+                "Chưa chọn thời gian"}
+            </p>
             <p>Tiền phòng: {(bookingData.totalCost / 1000)?.toLocaleString() || 0}K</p>
 
             {bookingData.serviceQuantities &&
@@ -183,7 +228,8 @@ const Booking = () => {
                 <>
                   <h4>Dịch vụ:</h4>
                   <p>
-                    Tổng tiền dịch vụ: {(bookingData.serviceTotal / 1000)?.toLocaleString() || 0}K
+                    Tổng tiền dịch vụ:{" "}
+                    {(bookingData.serviceTotal / 1000)?.toLocaleString() || 0}K
                   </p>
                 </>
               )}

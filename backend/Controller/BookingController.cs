@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using DAO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
@@ -22,7 +23,9 @@ public class BookingsController : ControllerBase
         // _bookingService = bookingService;
     }
 
-
+    /// Lấy tất cả booking online của tất cả user
+    /// Dùng trong giao diện staff khi trả phòng cho khách
+    [Authorize(Roles = "staff")]
     [HttpGet("online")]
     public async Task<IActionResult> GetOnlineBookings([FromQuery] DateTime date)
     {
@@ -68,45 +71,50 @@ public class BookingsController : ControllerBase
 
         return Ok(result);
     }
-    [HttpGet("room/{roomId}")]
-    public async Task<IActionResult> GetBookingsByRoom(int roomId)
-    {
-        var bookings = await _bookingDAO.GetBookingsByRoomAsync(roomId);
-        var result = bookings.Select(b => new
-        {
-            Id = b.Id,
-            Status = b.BookingStatus,
-            Times = b.BookingTimes.Select(t => new
-            {
-                Start = t.StartDate,
-                End = t.EndDate,
-                Price = t.TotalPrice
-            })
-        });
+    
+    
+    // [HttpGet("room/{roomId}")]
+    // public async Task<IActionResult> GetBookingsByRoom(int roomId)
+    // {
+    //     var bookings = await _bookingDAO.GetBookingsByRoomAsync(roomId);
+    //     var result = bookings.Select(b => new
+    //     {
+    //         Id = b.Id,
+    //         Status = b.BookingStatus,
+    //         Times = b.BookingTimes.Select(t => new
+    //         {
+    //             Start = t.StartDate,
+    //             End = t.EndDate,
+    //             Price = t.TotalPrice
+    //         })
+    //     });
 
-        return Ok(result);
-    }
+    //     return Ok(result);
+    // }
 
-    [HttpGet("booked-times/{roomId}")]
-    public async Task<IActionResult> GetBookedTimes(int roomId, [FromQuery] DateTime date)
-    {
-        var bookedTimes = await _bookingDAO.GetBookedTimesAsync(roomId, date);
-        var result = bookedTimes.Select(t => new
-        {
-            Start = t.StartDate,
-            End = t.EndDate,
-            Price = t.TotalPrice
-        });
 
-        return Ok(result);
-    }
+    // [HttpGet("booked-times/{roomId}")]
+    // public async Task<IActionResult> GetBookedTimes(int roomId, [FromQuery] DateTime date)
+    // {
+    //     var bookedTimes = await _bookingDAO.GetBookedTimesAsync(roomId, date);
+    //     var result = bookedTimes.Select(t => new
+    //     {
+    //         Start = t.StartDate,
+    //         End = t.EndDate,
+    //         Price = t.TotalPrice
+    //     });
 
+    //     return Ok(result);
+    // }
+
+    // Cập nhật trạng thái đặt phòng
+    // Dùng trong giao diện người dùng khi đặt online
     [HttpPut("{bookingId}/confirm")]
-    public async Task<IActionResult> ConfirmBooking(int bookingId)
+    public async Task<IActionResult> ConfirmBooking(int bookingId, [FromBody] bool isConfirmed)
     {
 
         // Xác nhận booking
-        var result = await _bookingDAO.ConfirmBookingAsync(bookingId);
+        var result = await _bookingDAO.ConfirmBookingAsync(bookingId, isConfirmed);
         if (!result)
         {
             return NotFound($"Không tìm thấy booking với ID {bookingId}.");
@@ -120,6 +128,29 @@ public class BookingsController : ControllerBase
         });
     }
 
+        [HttpPut("{bookingId}/complete")]
+    public async Task<IActionResult> CompleteOlineBooking(int bookingId)
+    {
+
+        // Xác nhận booking
+        var result = await _bookingDAO.CompleteOlineBookingAsync(bookingId);
+        if (!result)
+        {
+            return NotFound($"Không tìm thấy booking với ID {bookingId}.");
+        }
+
+        return Ok(new
+        {
+            Message = $"Booking {bookingId} đã được xác nhận thành công.",
+            BookingId = bookingId,
+            ConfirmedAt = DateTime.UtcNow
+        });
+    }
+
+
+    // Cập nhật trạng thái đặt phòng offline
+    // Dùng trong giao diện staff
+    [Authorize(Roles = "staff")]
     [HttpPut("confirm/{bookingId}")]
     public async Task<IActionResult> ConfirmOfflineBooking(int bookingId)
     {
@@ -140,6 +171,8 @@ public class BookingsController : ControllerBase
     }
 
     // Thêm mới: Tạo Booking offline
+    // Dùng trong giao diện staff đặt offline
+    [Authorize(Roles = "staff")]
     [HttpPost("offline")]
     public async Task<IActionResult> CreateOfflineBooking([FromBody] BookingDto bookingDto)
     {
@@ -190,6 +223,9 @@ public class BookingsController : ControllerBase
         return Ok(new { BookingId = newBookingId });
     }
 
+    // Checkout booking offline
+    // Dùng trong giao diện staff
+    [Authorize(Roles = "staff")]
     [HttpPost("checkout")]
     public async Task<IActionResult> CheckoutOfflineBooking([FromBody] CheckOutDto checkOutDto)
     {
@@ -246,6 +282,8 @@ public class BookingsController : ControllerBase
         }
     }
 
+    // Thêm món ăn và đồ uống vào booking
+    // Dùng trong giao diện staff có thể phát triển lên người dùng
     [HttpPost("add-fooddrinks")]
     public async Task<IActionResult> AddBookingFoodDrinks([FromBody] BookingFoodDrinkRequest request)
     {
@@ -261,6 +299,9 @@ public class BookingsController : ControllerBase
         }
     }
 
+    // Lấy tất cả booking của user
+    // Dùng trong giao diện người dùng khi xem lịch sử đặt phòng
+    [Authorize(Roles = "user")]
     [HttpGet("history")]
     public async Task<IActionResult> GetBookingsByUserId()
     {
@@ -308,6 +349,23 @@ public class BookingsController : ControllerBase
 
         return Ok(result);
     }
+
+    // Tạo booking online
+    // Dùng trong giao diện người dùng khi đặt online
+    [HttpPost("online")]
+    public async Task<IActionResult> CreateBooking([FromBody] BookingOnlineDto request)
+    {
+        try
+        {
+            var bookingId = await _bookingDAO.CreateOnlineBooking(request);
+            return Ok(new { BookingId = bookingId });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+    
 
 
 

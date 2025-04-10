@@ -32,7 +32,7 @@ public class BookingFoodDrinkDAO
             {
                 // Cập nhật mục hiện có
                 existingFoodDrink.Units += dto.Units;
-                existingFoodDrink.Price = foodDrink.Price * existingFoodDrink.Units; // Cập nhật tổng giá
+                existingFoodDrink.Price = dto.RawPrice * existingFoodDrink.Units; // Dùng RawPrice từ DTO
             }
             else
             {
@@ -42,7 +42,7 @@ public class BookingFoodDrinkDAO
                     BookingId = bookingId,
                     FoodDrinkId = dto.FoodDrinkId,
                     Units = dto.Units,
-                    Price = foodDrink.Price * dto.Units
+                    Price = dto.RawPrice * dto.Units // Dùng RawPrice từ DTO
                 };
                 _context.BookingFoodDrinks.Add(newBookingFoodDrink);
             }
@@ -53,13 +53,12 @@ public class BookingFoodDrinkDAO
 
         await _context.SaveChangesAsync();
     }
-
     private async Task DecreaseStockAsync(int foodDrinkId, int quantity)
     {
         var foodDrink = await _context.FoodDrinks.FirstOrDefaultAsync(f => f.Id == foodDrinkId);
         if (foodDrink == null) throw new Exception($"Không tìm thấy món ăn/uống với ID {foodDrinkId}.");
         if (foodDrink.Stock < quantity) throw new Exception($"Kho không đủ cho món ăn/uống ID {foodDrinkId}.");
-        
+
         foodDrink.Stock -= quantity;
         await _context.SaveChangesAsync();
     }

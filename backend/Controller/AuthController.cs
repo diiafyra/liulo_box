@@ -23,6 +23,9 @@ namespace Controllers
             _emailService = emailService;
         }
 
+        // Đăng ký người dùng mới
+        // Nếu là Google Auth, thì chỉ cần lấy uid từ token và gửi email cho người dùng với mật khẩu ngẫu nhiên
+        // Nếu không phải Google Auth, thì tạo tài khoản mới với thông tin người dùng tự nhập và gửi email xác minh
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
@@ -128,6 +131,7 @@ namespace Controllers
             }
         }
 
+        // Xác minh email
         [HttpGet("verify-email")]
         public async Task<IActionResult> VerifyEmail(string code)
         {
@@ -168,6 +172,7 @@ namespace Controllers
             }
         }
 
+        // Đăng nhập người dùng
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
@@ -194,7 +199,7 @@ namespace Controllers
             return new string(Enumerable.Repeat(chars, 8).Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        // [Authorize(Roles = "staff")] // 👈 staff mới được tạo user
+        [Authorize(Roles = "staff")] // staff mới được tạo user
         [HttpPost("create-user")]
         public async Task<IActionResult> CreateUser([FromBody] RegisterRequest request)
         {
@@ -220,7 +225,11 @@ namespace Controllers
                 return StatusCode(500, new { Message = "Failed to create user", Error = ex.Message });
             }
         }
-        // Trong AuthController.cs, thêm endpoint mới
+        // Xác minh khách hàng
+        // Dùng trong giao diên staff lúc đặt phòng cho khách off
+        // Nếu khách hàng đã có trong hệ thống thì trả về thông tin của họ
+        // Nếu chưa có thì tạo mới một tài khoản offline với uid là offline_{guid}
+        [Authorize(Roles = "staff")] // staff mới được tạo user
         [HttpPost("verify-customer")]
         public async Task<IActionResult> VerifyCustomer([FromBody] VerifyCustomerRequest request)
         {

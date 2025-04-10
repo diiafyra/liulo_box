@@ -18,6 +18,7 @@ builder.Services.AddSingleton<FirebaseService>();
 
 builder.Services.AddControllers();
 
+builder.Services.AddScoped<IUserContextService, UserContextService>();
 builder.Services.AddScoped<IUserDao, UserDao>();   // Đăng ký UserDao
 builder.Services.AddScoped<RoomDAO>(); // Đăng ký RoomDAO
 builder.Services.AddScoped<RoomPricingDAO>(); // Đăng ký RoomPricingDAO
@@ -59,6 +60,8 @@ builder.Services.AddCors(options =>
 
 builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
 builder.Services.AddScoped<IMomoService, MomoService>();
+
+builder.Services.AddHttpContextAccessor();
 
 
 var app = builder.Build();

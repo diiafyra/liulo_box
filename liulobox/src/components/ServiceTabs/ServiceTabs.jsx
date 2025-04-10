@@ -32,8 +32,18 @@ function ServiceTabs({ showQuantityControls = false, quantities = {}, onQuantiti
     { key: "food", label: "Food", items: [] },
     { key: "drink", label: "Drinks", items: [] },
   ]);
+  const [localQuantities, setLocalQuantities] = useState({});
   const navigate = useNavigate();
   const [sectionRef, sectionInView] = useInView({ triggerOnce: false, threshold: 0.2 });
+
+  useEffect(() => {
+    // So sánh cũ và mới để tránh setState không cần thiết
+    const isEqual = JSON.stringify(localQuantities) === JSON.stringify(quantities);
+    if (!isEqual) {
+      setLocalQuantities(quantities);
+    }
+  }, [quantities]);
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -78,20 +88,21 @@ function ServiceTabs({ showQuantityControls = false, quantities = {}, onQuantiti
     fetchData();
   }, []);
 
-  const handleQuantityChange = (itemId, change, maxStock) => {
-    const currentQty = quantities[itemId] || 0;
-    const newQuantity = Math.min(Math.max(0, currentQty + change), maxStock);
-    const updatedQuantities = { ...quantities, [itemId]: newQuantity };
+  const handleQuantityChange = (itemId, change, maxStock, rawPrice) => {
+    const currentQty = localQuantities[itemId]?.quantity || 0;
+    const newQty = Math.min(Math.max(0, currentQty + change), maxStock);
 
-    const serviceTotal = tabData.reduce((total, tab) => {
-      return (
-        total +
-        tab.items.reduce((subTotal, item) => {
-          const quantity = updatedQuantities[item.id] || 0;
-          return subTotal + quantity * item.rawPrice;
-        }, 0)
-      );
-    }, 0);
+    const updatedQuantities = {
+      ...localQuantities,
+      [itemId]: { quantity: newQty, rawPrice },
+    };
+
+    setLocalQuantities(updatedQuantities);
+
+    const serviceTotal = Object.values(updatedQuantities).reduce(
+      (sum, item) => sum + item.quantity * item.rawPrice,
+      0
+    );
 
     if (onQuantitiesChange) {
       onQuantitiesChange(updatedQuantities, serviceTotal);
@@ -106,15 +117,10 @@ function ServiceTabs({ showQuantityControls = false, quantities = {}, onQuantiti
   };
 
   const calculateTotal = () => {
-    return tabData.reduce((total, tab) => {
-      return (
-        total +
-        tab.items.reduce((subTotal, item) => {
-          const quantity = quantities[item.id] || 0;
-          return subTotal + quantity * item.rawPrice;
-        }, 0)
-      );
-    }, 0);
+    return Object.values(localQuantities).reduce(
+      (sum, item) => sum + item.quantity * item.rawPrice,
+      0
+    );
   };
 
   return (
@@ -189,13 +195,17 @@ function ServiceTabs({ showQuantityControls = false, quantities = {}, onQuantiti
                           <div className="quantity-wrapper">
                             <div className="quantity-controls">
                               <button
-                                onClick={() => handleQuantityChange(item.id, -1, item.stock)}
+                                onClick={() =>
+                                  handleQuantityChange(item.id, -1, item.stock, item.rawPrice)
+                                }
                               >
                                 –
                               </button>
-                              <span>{quantities[item.id] || 0}</span>
+                              <span>{localQuantities[item.id]?.quantity || 0}</span>
                               <button
-                                onClick={() => handleQuantityChange(item.id, 1, item.stock)}
+                                onClick={() =>
+                                  handleQuantityChange(item.id, 1, item.stock, item.rawPrice)
+                                }
                               >
                                 +
                               </button>

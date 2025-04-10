@@ -8,15 +8,14 @@ const PaymentResult = () => {
         extraData: null,
     });
     const location = useLocation();
-
     useEffect(() => {
         // Lấy các tham số từ query string trong URL
         const query = new URLSearchParams(location.search);
         const errorCode = query.get("errorCode"); // Mã kết quả từ MoMo
-        const message = query.get("message");       // Thông điệp từ MoMo
-        const amount = query.get("amount");       // Mã đơn hàng
-        const extraData = query.get("extraData");   // Dữ liệu bổ sung (nếu có)
-
+        const message = query.get("message");     // Thông điệp từ MoMo
+        const amount = query.get("amount");       // Số tiền
+        const orderId = query.get("orderId");     // Mã đơn hàng
+        const orderInfo = query.get("orderInfo"); // Thông tin đơn hàng
         if (errorCode === "0") {
             // Trường hợp thanh toán thành công
             setResult({
@@ -24,17 +23,56 @@ const PaymentResult = () => {
                 amount: amount,
                 extraData: extraData,
             });
-            // Gọi API thêm đơn hàng (nếu cần)
-            // Ví dụ: callApiToSaveOrder(amount);
+
+            // Gọi API để cập nhật trạng thái đơn hàng
+            updateOrderStatus(true, orderInfo);
         } else {
             // Trường hợp thanh toán thất bại
             setResult({
                 message: `Thanh toán thất bại: ${message || "Vui lòng thử lại."}`,
                 amount: amount,
-                // extraData: extraData,
             });
+
+            // Cập nhật đơn hàng với trạng thái thất bại
+            if (orderId) {
+                updateOrderStatus(false, orderInfo);
+            }
         }
     }, [location]);
+
+    // Hàm gọi API để cập nhật trạng thái đơn hàng
+    const updateOrderStatus = async (isConfirmed, orderInfo) => {
+        alert("id booking: "+orderInfo)
+        try {
+            const response = await fetch(`http://localhost:5220/api/bookings/${orderInfo}/confirm`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // 'Authorization': `Bearer ${token}`, // Thêm token nếu API yêu cầu
+                },
+                body: JSON.stringify({ isConfirmed: isConfirmed }),
+            });
+            if (response.ok) {
+                alert('Booking confirmed!');
+                setSelectedBooking(null);
+                fetchBookings(date); // Cập nhật lại danh sách
+            } else {
+                throw new Error('Lỗi khi xác nhận booking');
+            }
+        } catch (error) {
+            console.error('Error confirming booking:', error);
+            alert('Lỗi: ' + error.message);
+        }
+
+        const data = await response.json();
+        console.log('Order update response:', data);
+
+        // Có thể xử lý thêm dựa trên kết quả từ API
+        if (!data.success) {
+            console.error('Failed to update order:', data.message);
+        }
+
+    };
 
     return (
         <div className="payment-result" style={{ textAlign: "center", marginTop: "50px" }}>

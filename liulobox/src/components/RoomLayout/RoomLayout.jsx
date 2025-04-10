@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom'; // Thêm useLocation để lấy query params
+import { useLoading } from './../../contexts/LoadingContext'; // Import useLoading để dùng context
 import './RoomLayout.css'; // Đảm bảo bạn có file CSS cho theme
-
+import withLoading from './../../components/withLoading'; // Import HOC với loading
 const RoomLayout = ({ onComplete }) => {
+  const { setIsLoading } = useLoading(); // Lấy setIsLoading từ context
   const [rooms, setRooms] = useState([]);
   const [filteredRooms, setFilteredRooms] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -16,6 +18,7 @@ const RoomLayout = ({ onComplete }) => {
   // Fetch danh sách phòng và category từ API
   useEffect(() => {
     const fetchRooms = async () => {
+      setIsLoading(true); // Bật loading trước khi fetch
       try {
         const response = await fetch('http://localhost:5220/api/room');
         const data = await response.json();
@@ -27,11 +30,13 @@ const RoomLayout = ({ onComplete }) => {
         setFilteredRooms(data); // Mặc định hiển thị tất cả phòng
       } catch (error) {
         console.error('Lỗi lấy danh sách phòng:', error);
+      } finally {
+        setIsLoading(false); // Tắt loading sau khi fetch xong
       }
     };
 
     fetchRooms();
-  }, []); // Chỉ fetch dữ liệu phòng một lần khi component mount
+  }, [setIsLoading]); // Chỉ fetch dữ liệu phòng một lần khi component mount, thêm setIsLoading vào dependency
 
   // Điều chỉnh danh sách phòng theo category từ query params
   useEffect(() => {
@@ -45,31 +50,26 @@ const RoomLayout = ({ onComplete }) => {
   }, [categoryId, rooms]); // Cập nhật khi categoryId hoặc rooms thay đổi
 
   // Handle khi người dùng chọn category
-  // Handle khi người dùng chọn category
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
     if (category) {
-      setFilteredRooms(rooms.filter((room) => room.roomCategory.id === category)); // Lọc phòng theo categoryId
-      navigate(`?category=${category}`); // Điều hướng với query parameter categoryId (category là id)
+      setFilteredRooms(rooms.filter((room) => room.roomCategory.name === category)); // Lọc phòng theo category name
+      navigate(`?category=${category}`); // Điều hướng với query parameter category (dùng name thay vì id)
     } else {
       setFilteredRooms(rooms); // Nếu không chọn category nào, hiển thị tất cả
       navigate('?'); // Xóa query parameter khi chọn "All"
     }
   };
 
-
   // Handle khi người dùng chọn phòng
   const handleRoomSelect = (room) => {
     setSelectedRoom(room.id); // Lưu lại phòng đã chọn
     if (typeof onComplete === 'function') {
-      onComplete(room);
-      setSelectedRoom(room.id); // Lưu lại phòng đã chọn
       onComplete(room); // Truyền toàn bộ phòng đã chọn
     } else { // Truyền toàn bộ phòng đã chọn
       navigate(`/room-detail/${room.id}`);
-    }// Điều hướng đến trang chi tiết phòng
+    } // Điều hướng đến trang chi tiết phòng
     // alert(`Bạn đã chọn phòng ${room.roomNumber}`); // Thông báo phòng đã chọn
-
   };
 
   return (
@@ -119,4 +119,5 @@ const RoomLayout = ({ onComplete }) => {
   );
 };
 
-export default RoomLayout;
+// Áp dụng HOC withLoading
+export default withLoading(RoomLayout);

@@ -5,6 +5,12 @@
     width: 100%;
 }
 
+.logo-img{
+    width: auto;
+    height: 40px;
+    margin: 20px 0 0 40px;
+}
+
 .header-top {
     display: flex;
     align-items: center;

@@ -101,6 +101,7 @@ const OfflineBooking = () => {
                 .map((foodDrinkId) => ({
                     foodDrinkId: parseInt(foodDrinkId),
                     units: quantities[foodDrinkId],
+                    price: quantities[foodDrinkId].rawPrice,
                 })),
         };
 

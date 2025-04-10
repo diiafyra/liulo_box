@@ -1,4 +1,5 @@
 using DAO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -33,6 +34,7 @@ public class StockController : ControllerBase
         public int Quantity { get; set; }
     }
 
+    [Authorize(Roles = "staff")] 
     [HttpPost("add")]
     public async Task<IActionResult> AddStockAndHistory([FromBody] StockRequest request)
     {

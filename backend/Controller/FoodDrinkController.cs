@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,12 +14,16 @@ public class FoodDrinkController : ControllerBase
         _dao = dao;
     }
 
+    /// Lấy danh sách tất cả món ăn và đồ uống
+    /// Dùng trong giao diện staff nhập kho
     [HttpGet]
     public async Task<ActionResult<List<FoodDrink>>> GetAll()
     {
         return await _dao.GetAllAsync();
     }
 
+    /// Lấy danh sách theo đồ ăn và đồ uống
+    /// Dùng trong giao diện khách và staff khi mua hàng
     [HttpGet("{category}")]
     public async Task<ActionResult<List<FoodDrink>>> GetRemainByCategory(string category)
     {
@@ -27,7 +32,8 @@ public class FoodDrinkController : ControllerBase
             return NotFound();
         return result;
     }
-
+    /// Lấy món ăn và đồ uống theo ID 
+    /// dùng trong giao diện khách khi xem chi tiết
     [HttpGet("byid/{id}")]
     public async Task<ActionResult<FoodDrink>> GetById(int id)
     {
@@ -37,7 +43,9 @@ public class FoodDrinkController : ControllerBase
         return item;
     }
 
-[HttpPost]
+    // Thêm món ăn và đồ uống mới
+    [HttpPost]
+    [Authorize(Roles = "staff")] // Chỉ cho phép người dùng có vai trò "staff" thực hiện yêu cầu này
     public async Task<IActionResult> Create([FromBody] FoodDrinkCreateDto dto)
     {
         if (dto == null)
@@ -58,6 +66,8 @@ public class FoodDrinkController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = foodDrink.Id }, foodDrink);
     }
 
+    // Nhập kho món ăn và đồ uống
+    [Authorize(Roles = "staff")] // Chỉ cho phép người dùng có vai trò "staff" thực hiện yêu cầu này
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, FoodDrink updated)
     {
@@ -72,16 +82,16 @@ public class FoodDrinkController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var existing = await _dao.GetByIdAsync(id);
-        if (existing == null)
-            return NotFound();
+    // [HttpDelete("{id}")]
+    // public async Task<IActionResult> Delete(int id)
+    // {
+    //     var existing = await _dao.GetByIdAsync(id);
+    //     if (existing == null)
+    //         return NotFound();
 
-        await _dao.DeleteAsync(id);
-        return NoContent();
-    }
+    //     await _dao.DeleteAsync(id);
+    //     return NoContent();
+    // }
 }
 public class FoodDrinkCreateDto
 {

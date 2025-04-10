@@ -27,15 +27,17 @@ public class PaymentController : ControllerBase
 
         return Ok(new { payUrl = response.PayUrl });
     }
-    // [HttpGet]
-    // public IActionResult PaymentCallBack()
-    // {
-    //     var response = _momoService.PaymentExecuteAsync(HttpContext.Request.Query);
-    //     return Ok(response);
-    // }
+    [HttpGet]
+    public IActionResult PaymentCallBack()
+    {
+        System.Console.WriteLine("Received MoMo callback: " + HttpContext.Request.Query.ToString());
+        var response = _momoService.PaymentExecuteAsync(HttpContext.Request.Query);
+        return Ok(response);
+    }
     // [HttpPost("Checkout/MomoNotify")]
     //     public IActionResult HandleMomoNotify([FromBody] MomoCreatePaymentResponseModel notification)
     //     {
+    //         System.Console.WriteLine("Received MoMo notification: " + notification.ToString());
     //         // Kiểm tra chữ ký
     //         bool isValidSignature = _momoService.VerifySignature(notification);
     //         if (!isValidSignature)

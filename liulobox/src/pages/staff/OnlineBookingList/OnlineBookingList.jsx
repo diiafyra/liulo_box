@@ -19,6 +19,7 @@ const OnlineBookingList = () => {
     try {
       const response = await fetch(`http://localhost:5220/api/bookings/online?date=${selectedDate}`, {
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`, // Thêm token nếu API yêu cầu xác thực
         },
       });
@@ -40,13 +41,13 @@ const OnlineBookingList = () => {
   // Xác nhận booking (cập nhật isComplete = true)
   const handleConfirm = async (bookingId) => {
     try {
-      const response = await fetch(`http://localhost:5220/api/bookings/${bookingId}/confirm`, {
+      const response = await fetch(`http://localhost:5220/api/bookings/${bookingId}/complete`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`, // Thêm token nếu API yêu cầu
         },
-        body: JSON.stringify({ isComplete: true }),
+        body: JSON.stringify({ isConfirmed: true }),
       });
       if (response.ok) {
         alert('Booking confirmed!');

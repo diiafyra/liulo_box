@@ -23,9 +23,16 @@ export const AuthProvider = ({ children }) => {
                     setUser({ ...firebaseUser, ...response.data });
                     setRole(response.data.role || "ho"); // Lấy vai trò từ API
                 } catch (error) {
-                    setUser(firebaseUser);
+                    console.error("[AuthContext] Token không hợp lệ hoặc hết hạn:", error);
+                
+                    // Nếu token hết hạn → đăng xuất luôn
+                    logout();
+                    alert("Token không hợp lệ hoặc hết hạn. Vui lòng đăng nhập lại.");
+                    setUser(null);
                     setRole('customer');
+                    navigate("/joinus"); // Chuyển hướng về trang login
                 }
+                
             } else {
                 setUser(null);
                 setRole('customer');

@@ -70,10 +70,6 @@
   text-align: center;
 }
 
-.room-infor p:first-of-type::before {
-  content: "👥";
-  font-size: var(--font-size-small);
-}
 
 /* Add space before PriceSwitcher */
 .room-infor p:last-of-type {

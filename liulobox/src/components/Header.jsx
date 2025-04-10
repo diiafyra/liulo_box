@@ -18,7 +18,7 @@ function Header() {
   const navigate = useNavigate();
 
   const customerMenuItems = ['Trang chủ', 'Giới Thiệu', 'Sơ đồ Phòng - Giá', 'Đặt phòng', 'Liên hệ'];
-  const staffMenuItems = ['Trang chủ', 'Tạo tài khoản nhân viên', 'Quản lý đặt phòng', 'Nhập hàng','Trả phòng khách Online', 'Báo cáo'];
+  const staffMenuItems = ['Trang chủ', 'Tạo tài khoản nhân viên', 'Quản lý đặt phòng', 'Nhập hàng', 'Trả phòng khách Online', 'Báo cáo'];
   const menuItems = isStaff ? staffMenuItems : customerMenuItems;
 
   const closeMenu = () => {
@@ -107,7 +107,17 @@ function Header() {
   return (
     <header className="header"> {/* Thay motion.header thành header thường để bỏ animation load */}
       <div className="header-top">
-        <div className="logo">MyApp</div>
+        <div
+          className="logo"
+          onClick={() => navigate('/')}
+          style={{ cursor: 'pointer' }} // để có icon bàn tay khi hover
+        >
+          <img
+            className='logo-img'
+            src="https://storage.googleapis.com/pr-newsroom-wp/1/2023/05/Spotify_Full_Logo_RGB_White.png" // Đường dẫn ảnh logo
+            alt="MyApp Logo"
+          />
+        </div>
         <div className="header-right">
           <Menu
             isOpen={isMenuOpen}
@@ -171,7 +181,7 @@ function Header() {
               exit={{ height: 0, opacity: 0, y: -10 }}
               transition={{ duration: 0.3, ease: 'easeInOut' }}
             >
-              {(isLoggedIn ? [ 'Lịch sử', 'Đăng xuất'] : ['Đăng Nhập/Đăng Ký']).map(
+              {(isLoggedIn ? ['Lịch sử', 'Đăng xuất'] : ['Đăng Nhập/Đăng Ký']).map(
                 (item, index) => (
                   <motion.li
                     key={item}
