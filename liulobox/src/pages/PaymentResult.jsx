@@ -42,18 +42,19 @@ const PaymentResult = () => {
 
     // Hàm gọi API để cập nhật trạng thái đơn hàng
     const updateOrderStatus = async (isConfirmed, orderInfo) => {
-        alert("id booking: "+orderInfo)
+        // alert("id booking: "+orderInfo)
         try {
-            const response = await fetch(`http://localhost:5220/api/bookings/${orderInfo}/confirm`, {
+            const response = await fetch(`https://fbb1-171-224-84-105.ngrok-free.app/api/bookings/${orderInfo}/confirm`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    'ngrok-skip-browser-warning': 'true',
                     // 'Authorization': `Bearer ${token}`, // Thêm token nếu API yêu cầu
                 },
                 body: JSON.stringify({ isConfirmed: isConfirmed }),
             });
             if (response.ok) {
-                alert('Booking confirmed!');
+                // alert('Booking confirmed!/');
                 setSelectedBooking(null);
                 fetchBookings(date); // Cập nhật lại danh sách
             } else {
@@ -61,7 +62,7 @@ const PaymentResult = () => {
             }
         } catch (error) {
             console.error('Error confirming booking:', error);
-            alert('Lỗi: ' + error.message);
+            // alert('Lỗi: ' + error.message);
         }
 
         const data = await response.json();

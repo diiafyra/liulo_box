@@ -42,7 +42,7 @@ function App() {
               <Route path="/history" element={<InvoiceHistory />} />
               <Route path="/Checkout/PaymentCallBack" element={<PaymentResult />} />
               <Route path="/unauthorized" element={<Unauthorized />} />
-
+              <Route path="/autho" element={<CreateEmployeeAccount />} />
               {/* Staff Routes (Protected) */}
               <Route
                 path="/staff/create-employee"

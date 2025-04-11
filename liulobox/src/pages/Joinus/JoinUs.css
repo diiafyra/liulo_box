@@ -76,7 +76,7 @@
 }
 
 /* Input */
-.form-input {
+.form-content .form-input {
   width: 100%;
   padding: 1rem 1.25rem;
   margin-bottom: 20px;
@@ -88,17 +88,17 @@
   transition: all 0.3s ease;
 }
 
-.form-input::placeholder {
+.form-content .form-input::placeholder {
   color: rgba(255, 249, 240, 0.5);
 }
 
-.form-input:focus {
+.form-content .form-input:focus {
   outline: none;
   background: rgba(255, 255, 255, 0.15);
 }
 
 /* Tùy chỉnh thông báo lỗi mặc định của trình duyệt */
-.form-input:invalid:focus {
+.form-content .form-input:invalid:focus {
   border-color: #ff6b6b; /* Viền đỏ khi input không hợp lệ */
 }
 
@@ -191,7 +191,7 @@
     gap: 1.25rem; /* Đảm bảo khoảng cách hợp lý trên màn hình nhỏ */
   }
 
-  .form-input {
+  .form-content .form-input {
     padding: 0.8rem 1rem; /* Giảm padding input */
     font-size: 14px; /* Giảm kích thước chữ */
   }

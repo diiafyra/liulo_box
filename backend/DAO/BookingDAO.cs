@@ -3,6 +3,8 @@ using System.Security.Claims;
 using DAO;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using DTO;
+using System.Text.Json.Serialization;
 
 public class BookingDAO
 {
@@ -10,15 +12,15 @@ public class BookingDAO
     private readonly BookingFoodDrinkDAO _bookingFoodDrinkDAO;
     private readonly IUserDao _userDao;
     private readonly IUserContextService _userContextService;
-    public BookingDAO(ApplicationDbContext context, BookingFoodDrinkDAO bookingFoodDrinkDAO, IUserDao userDao, IUserContextService userContextService)
+    private readonly IAuthService authService; // Thêm vào nếu cần gửi email
+    public BookingDAO(ApplicationDbContext context, BookingFoodDrinkDAO bookingFoodDrinkDAO, IUserDao userDao, IUserContextService userContextService, IAuthService authService)
     {
         _context = context;
         _bookingFoodDrinkDAO = bookingFoodDrinkDAO;
         _userDao = userDao;
         _userContextService = userContextService;
+        this.authService = authService; // Thêm vào nếu cần gửi email
     }
-
-
 
     // Kiểm tra xem phòng đã được đặt trong khung giờ này chưa
     public async Task<List<BookingTime>> GetBookedTimesAsync(int roomId, DateTime date)
@@ -238,7 +240,15 @@ public class BookingDAO
 
         if (string.IsNullOrEmpty(firebaseUid))
         {
-            throw new Exception("Không lấy được Firebase UID từ token.");
+            RegisterRequest registerRequest = new RegisterRequest
+            {
+                Username = request.Name,
+                Email = request.Gmail,
+                PhoneNumber = request.PhoneNumber,
+                IsGoogleAuth = false 
+            };
+            RegisterResponse user = await authService.RegisterAsync(registerRequest); // Đăng ký người dùng mới
+            firebaseUid = user.FirebaseUid; // Lấy Firebase UID từ phản hồi đăng ký
         }
 
         // Lấy user từ Firebase UID
@@ -326,14 +336,31 @@ public class BookingFoodDrinkDto
 }
 public class BookingOnlineDto
 {
+    [JsonPropertyName("Username")]
+    public string Name { get; set; }
+
+    [JsonPropertyName("email")]
+    public string Gmail { get; set; }
+
+    [JsonPropertyName("phoneNumber")]
+    public string PhoneNumber { get; set; }
+
+    [JsonPropertyName("selectedDate")]
     public string SelectedDate { get; set; }
+
+    [JsonPropertyName("roomId")]
     public int RoomId { get; set; }
+
+    [JsonPropertyName("timeSlots")]
     public List<TimeSlotDto> TimeSlots { get; set; }
+
+    [JsonPropertyName("foodDrinks")]
     public Dictionary<int, BookingFoodDrinkDto> FoodDrinks { get; set; }
 }
 
 public class TimeSlotDto
 {
+
     public string StartTime { get; set; }
     public string EndTime { get; set; }
     public int PriceId { get; set; }

@@ -10,13 +10,15 @@ import { arrowBack } from "ionicons/icons";
 import { AuthContext } from "../../contexts/AuthContext";
 import axios from "axios";
 
+import { useLoading } from '../../contexts/LoadingContext'; // Điều chỉnh đường dẫn nếu cần
+
 const Booking = () => {
   const { user } = useContext(AuthContext);
+  const token = user?.accessToken || null;
+  const { setIsLoading } = useLoading(); // Thêm useLoading
   const [step, setStep] = useState(1);
   const [subStep, setSubStep] = useState(1);
-
   const [bookingData, setBookingData] = useState({});
-
   const handleUserInfoComplete = (userInfo) => {
     setBookingData({ ...bookingData, userInfo });
     setStep(2);
@@ -47,8 +49,11 @@ const Booking = () => {
   };
 
   const handlePayment = async () => {
-    // 1. Chuẩn bị dữ liệu gửi tới API tạo booking
+    setIsLoading(true); // Bật loading khi bắt đầu xử lý
     const bookingRequest = {
+      Username: bookingData.userInfo?.name,
+      phoneNumber: bookingData.userInfo?.phone,
+      email: bookingData.userInfo?.email,
       selectedDate: bookingData.selectedDate,
       roomId: bookingData.selectedRoom?.id,
       timeSlots: bookingData.selectedSlots.map((slot) => ({
@@ -70,24 +75,24 @@ const Booking = () => {
     };
 
     try {
-      // 2. Gửi request tạo booking
+      // Gửi request tạo booking
       const bookingResponse = await axios.post(
-        "http://localhost:5220/api/bookings/online", // Endpoint của bạn
+        "https://fbb1-171-224-84-105.ngrok-free.app/api/bookings/online",
         bookingRequest,
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${user.accessToken}`
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      const { bookingId } = bookingResponse.data; // Lấy bookingId từ response
+      const { bookingId } = bookingResponse.data;
       if (!bookingId) {
         throw new Error("Không nhận được bookingId từ server");
       }
 
-      // 3. Chuẩn bị dữ liệu thanh toán
+      // Chuẩn bị dữ liệu thanh toán
       const totalAmount = (bookingData.totalCost || 0) + (bookingData.serviceTotal || 0);
       const paymentData = {
         orderId: `liulobox-${bookingId}-${Date.now()}`,
@@ -96,14 +101,14 @@ const Booking = () => {
         orderInfo: bookingId.toString(),
       };
 
-      // 4. Gửi request tạo thanh toán MoMo
+      // Gửi request tạo thanh toán MoMo
       const paymentResponse = await axios.post(
-        "http://localhost:5220/api/payment/create-payment",
+        "https://fbb1-171-224-84-105.ngrok-free.app/api/payment/create-payment",
         paymentData,
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${user.accessToken}`
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -117,6 +122,8 @@ const Booking = () => {
     } catch (error) {
       console.error("Lỗi khi xử lý thanh toán:", error.response?.data || error.message);
       alert("Có lỗi xảy ra khi tạo booking hoặc thanh toán. Vui lòng thử lại!");
+    } finally {
+      setIsLoading(false); // Tắt loading dù thành công hay thất bại
     }
   };
 

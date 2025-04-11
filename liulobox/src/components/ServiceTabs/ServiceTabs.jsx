@@ -49,8 +49,16 @@ function ServiceTabs({ showQuantityControls = false, quantities = {}, onQuantiti
     const fetchData = async () => {
       try {
         const [foodRes, drinkRes] = await Promise.all([
-          fetch("http://localhost:5220/api/fooddrink/Food"),
-          fetch("http://localhost:5220/api/fooddrink/Drink"),
+          fetch("https://fbb1-171-224-84-105.ngrok-free.app/api/fooddrink/Food", {
+            headers: {
+              'ngrok-skip-browser-warning': 'true'
+            }
+          }),
+          fetch("https://fbb1-171-224-84-105.ngrok-free.app/api/fooddrink/Drink", {
+            headers: {
+              'ngrok-skip-browser-warning': 'true'
+            }
+          })
         ]);
 
         const foodData = await foodRes.json();

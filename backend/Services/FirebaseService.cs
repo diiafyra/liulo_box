@@ -24,13 +24,32 @@ namespace Services
 
         public async Task<string> CreateUserAsync(string email, string password)
         {
-            var userRecord = await FirebaseAuth.DefaultInstance.CreateUserAsync(new UserRecordArgs
+            try
             {
-                Email = email,
-                Password = password
-            });
-            return userRecord.Uid;
+                var userRecord = await FirebaseAuth.DefaultInstance.CreateUserAsync(new UserRecordArgs
+                {
+                    Email = email,
+                    Password = password
+                });
+                return userRecord.Uid;
+            }
+            catch (FirebaseAuthException ex)
+            {
+                if (ex.AuthErrorCode == AuthErrorCode.EmailAlreadyExists)
+                {
+                    // Nếu email đã tồn tại, lấy thông tin user theo email và trả về UID cũ
+                    var existingUser = await FirebaseAuth.DefaultInstance.GetUserByEmailAsync(email);
+                    return existingUser.Uid;
+                }
+                else
+                {
+                    // Lỗi khác
+                    Console.WriteLine($"Unexpected error: {ex.Message}");
+                    throw;
+                }
+            }
         }
+
 
         public async Task<FirebaseToken> VerifyTokenAsync(string idToken)
         {

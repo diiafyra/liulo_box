@@ -27,7 +27,7 @@ builder.Services.AddScoped<RoomCategoryDAO>(); // Đăng ký BookingDAO
 builder.Services.AddScoped<FoodDrinkDAO>();
 builder.Services.AddScoped<StockHistoryDao>(); // Đăng ký StockHistoryDao
 builder.Services.AddScoped<BookingFoodDrinkDAO>(); // Đăng ký BookingFoodDrinkDAO
-
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddSingleton<EmailService>();
 // builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddAuthentication("Bearer")
@@ -52,11 +52,15 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
-        builder => builder.WithOrigins("http://localhost:5173")  // Chỉ định nguồn của frontend
+        builder => builder.WithOrigins(
+            "https://liulobox.web.app",
+                            "http://localhost:5173", 
+                            "https://544e-171-224-84-105.ngrok-free.app")  // Thêm domain ngrok vào đây
                           .AllowAnyMethod()
-                          .AllowAnyHeader()
-                          .AllowCredentials());  // Cho phép gửi chứng thực (cookies, token)
+                          .AllowAnyHeader ()
+                          .AllowCredentials());
 });
+
 
 builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
 builder.Services.AddScoped<IMomoService, MomoService>();

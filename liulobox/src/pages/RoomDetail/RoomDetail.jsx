@@ -14,7 +14,15 @@ const RoomDetail = () => {
     useEffect(() => {
         const fetchRoomDetail = async () => {
             try {
-                const response = await fetch(`http://localhost:5220/api/room/${id}`);
+                const response = await fetch(`https://fbb1-171-224-84-105.ngrok-free.app/api/room/${id}`, {
+                    method: 'GET',
+                    headers: {
+                      'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true',
+                        
+                    },
+                    mode: 'cors',
+                  });
                 if (!response.ok) throw new Error('Không thể tải thông tin phòng');
                 const data = await response.json();
                 setRoom(data);

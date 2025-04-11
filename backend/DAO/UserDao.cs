@@ -8,7 +8,7 @@ namespace DAO
     {
         Task<User> GetUserByFirebaseUidAsync(string firebaseUid);
         Task<User> GetUserByUsernameAsync(string username);
-        Task AddUserAsync(User user);
+        Task<string> AddUserAsync(User user);
         Task UpdateUserAsync(User user);
         Task<User> GetUserByPhoneNumberAsync(string phoneNumber);
         Task<User> FindAsync(int userId);
@@ -33,11 +33,22 @@ namespace DAO
             return await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
         }
 
-        public async Task AddUserAsync(User user)
+        public async Task<string> AddUserAsync(User user)
         {
+            var existingUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.FirebaseUid == user.FirebaseUid);
+
+            if (existingUser != null)
+            {
+                return "Email đã tồn tại.";
+            }
+
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
+
+            return "Người dùng đã được thêm thành công.";
         }
+
 
         public async Task UpdateUserAsync(User user)
         {
@@ -57,5 +68,5 @@ namespace DAO
                 .FirstOrDefaultAsync(u => u.Id == userId);
         }
     }
-    
+
 }

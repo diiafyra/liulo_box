@@ -20,8 +20,11 @@ const RoomLayout = ({ onComplete }) => {
     const fetchRooms = async () => {
       setIsLoading(true); // Bật loading trước khi fetch
       try {
-        const response = await fetch('http://localhost:5220/api/room');
-        const data = await response.json();
+        const response = await fetch('https://fbb1-171-224-84-105.ngrok-free.app/api/room', {
+          headers: {
+            'ngrok-skip-browser-warning': 'true'
+          }
+        });        const data = await response.json();
 
         // Lấy các category duy nhất từ dữ liệu phòng
         const categorySet = new Set(data.map((room) => room.roomCategory.name));

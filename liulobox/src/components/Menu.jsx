@@ -35,8 +35,8 @@ function Menu({ isOpen, setIsOpen, onToggleOther, menuItems }) {
         case 'Trả phòng khách Online':
           navigate('/staff/booking/online');
           break;
-        case 'Báo cáo':
-          navigate('/staff/reports');
+        // case 'Báo cáo':
+        //   navigate('/staff/reports');
           break;
         default:
           navigate('/staff/dashboard');

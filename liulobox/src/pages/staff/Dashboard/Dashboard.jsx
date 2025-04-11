@@ -16,10 +16,10 @@ function Dashboard() {
 
 //   const fetchDashboardData = async () => {
 //     try {
-//       const roomResponse = await axios.get('http://localhost:5220/api/dashboard/room-stats');
+//       const roomResponse = await axios.get('https://fbb1-171-224-84-105.ngrok-free.app/api/dashboard/room-stats');
 //       setRoomData(roomResponse.data);
 
-//       const revenueResponse = await axios.get('http://localhost:5220/api/dashboard/revenue-stats');
+//       const revenueResponse = await axios.get('https://fbb1-171-224-84-105.ngrok-free.app/api/dashboard/revenue-stats');
 //       setRevenueData(revenueResponse.data);
 //     } catch (error) {
 //       console.error('Error fetching dashboard data:', error);
@@ -38,7 +38,7 @@ function Dashboard() {
     navigate('/staff/booking/online'); // Chuyển hướng đến trang trả phòng khách Online};
   }
   const handleShiftEndClick = () => {
-    console.log('Kết ca');
+    console.log('/staff/booking/create-employee');
   };
 
   return (
@@ -55,7 +55,7 @@ function Dashboard() {
           Trả phòng khách Online
         </button>
         <button className="modern-button" onClick={handleShiftEndClick}>
-          Kết ca
+          Tạo tài khoản NV
         </button>
       </div>
 

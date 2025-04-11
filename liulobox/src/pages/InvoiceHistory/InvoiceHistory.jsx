@@ -17,8 +17,10 @@ const InvoiceHistory = () => {
                     setErrorMessage("Vui lòng đăng nhập để xem lịch sử hóa đơn.");
                     return;
                 }
-                const response = await axios.get(`http://localhost:5220/api/bookings/history`, {
+                const response = await axios.get(`https://fbb1-171-224-84-105.ngrok-free.app/api/bookings/history`, {
                     headers: {
+                        'ngrok-skip-browser-warning': 'true',
+                        'Content-Type': 'application/json',
                         Authorization: `Bearer ${token}`
                     }
                 });                

@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import './OnlineBookingList.css';
 import InvoiceModal from './../../../components/staff/Invoice/InvoiceModal'; // Import InvoiceModal
-
+import { AuthContext } from '../../../contexts/AuthContext'; // Import AuthContext
 const OnlineBookingList = () => {
   const [bookings, setBookings] = useState([]);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]); // Ngày hiện tại
-
+  const { user } = useContext(AuthContext);
+  const token = user.accessToken ?? null // Lấy thông tin người dùng từ AuthContext
   // Token giả định từ localStorage (thay bằng cách lấy thực tế nếu cần)
-  const token = localStorage.getItem('token');
 
   // Lấy danh sách booking từ API
   useEffect(() => {
@@ -17,8 +17,9 @@ const OnlineBookingList = () => {
 
   const fetchBookings = async (selectedDate) => {
     try {
-      const response = await fetch(`http://localhost:5220/api/bookings/online?date=${selectedDate}`, {
+      const response = await fetch(`https://fbb1-171-224-84-105.ngrok-free.app/api/bookings/online?date=${selectedDate}`, {
         headers: {
+          'ngrok-skip-browser-warning': 'true',
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`, // Thêm token nếu API yêu cầu xác thực
         },
@@ -41,9 +42,10 @@ const OnlineBookingList = () => {
   // Xác nhận booking (cập nhật isComplete = true)
   const handleConfirm = async (bookingId) => {
     try {
-      const response = await fetch(`http://localhost:5220/api/bookings/${bookingId}/complete`, {
+      const response = await fetch(`https://fbb1-171-224-84-105.ngrok-free.app/api/bookings/${bookingId}/complete`, {
         method: 'PUT',
         headers: {
+          'ngrok-skip-browser-warning': 'true',
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`, // Thêm token nếu API yêu cầu
         },

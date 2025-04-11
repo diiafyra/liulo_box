@@ -16,8 +16,11 @@ function PriceSection() {
     useEffect(() => {
         const fetchRooms = async () => {
             try {
-                const response = await fetch('http://localhost:5220/api/priceconfig/getcategories'); // API endpoint của bạn
-                if (!response.ok) {
+                const response = await fetch('https://fbb1-171-224-84-105.ngrok-free.app/api/priceconfig/getcategories', {
+                    headers: {
+                      'ngrok-skip-browser-warning': 'true'
+                    }
+                  });                if (!response.ok) {
                     throw new Error('Failed to fetch rooms data');
                 }
                 const data = await response.json();

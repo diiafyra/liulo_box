@@ -18,18 +18,32 @@ function FoodDrinkDetail() {
     const fetchDetail = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`http://localhost:5220/api/fooddrink/byid/${id}`);
+        const res = await fetch(`https://fbb1-171-224-84-105.ngrok-free.app/api/fooddrink/byid/${id}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': 'true',
+          },
+          mode: 'cors',
+        });
+  
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+  
         const data = await res.json();
-        setDetail(data);
+        console.log(data);
+        setDetail(data); // ✅ Set ở đây sau khi có data
       } catch (error) {
-        console.error("Error fetching detail:", error);
+        console.error('Error fetching detail:', error);
       } finally {
         setIsLoading(false);
       }
     };
-
+  
     fetchDetail();
   }, [id, setIsLoading]);
+  
 
   const handleAddToCart = () => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -79,26 +93,26 @@ function FoodDrinkDetail() {
           <strong>Loại:</strong> {detail.category}
         </p>
         <p className="description">{detail.description}</p>
+        <span className="stock-info">Còn lại: {detail.stock}</span> {/* Thêm thông tin còn lại */}
 
         {/* Quantity Selector */}
         <div className="quantity-container">
-          <button className="quantity-btn" onClick={decreaseQuantity}>-</button>
+          {/* <button className="quantity-btn" onClick={decreaseQuantity}>-</button>
           <input 
             type="number" 
             value={quantity} 
             className="quantity-input" 
             readOnly 
             max={detail.stock}  // Giới hạn số lượng tối đa
-          />
-          <button className="quantity-btn" onClick={increaseQuantity}>+</button>
-          <span className="stock-info">Còn lại: {detail.stock}</span> {/* Thêm thông tin còn lại */}
+          /> */}
+          {/* <button className="quantity-btn" onClick={increaseQuantity}>+</button> */}
         </div>
 
         {/* Action Buttons */}
 
-        <button onClick={handleAddToCart} className="btn btn-add-to-cart">
+        {/* <button onClick={handleAddToCart} className="btn btn-add-to-cart">
           <IonIcon icon={cart} className="cart-icon" />
-        </button>
+        </button> */}
       </motion.div>
     </motion.div>
   );

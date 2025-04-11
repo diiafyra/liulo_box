@@ -92,7 +92,7 @@ public async Task<List<RoomViewModel>> GetActiveRoomsWithPricingAsync()
 
         // Booking online còn lại trong ngày
         var futureOnlineBookings = room.Bookings
-            .Where(b => b.BookingType == "online")
+            .Where(b => b.BookingType == "online" && b.BookingStatus == "Confirmed")
             .SelectMany(b => b.BookingTimes
                 .Where(bt => bt.EndDate > now && bt.StartDate.Date == today)
                 .Select(bt => new FutureBookingViewModel

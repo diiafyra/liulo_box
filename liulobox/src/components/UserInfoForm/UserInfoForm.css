@@ -20,7 +20,7 @@
   gap: 1.5rem;
 }
 
-.form-input {
+.step-content .form-input {
   width: 100%;
   padding: 1rem 1.25rem;
   background: rgba(255, 255, 255, 0.1);
@@ -31,16 +31,16 @@
   transition: all 0.3s ease;
 }
 
-.form-input::placeholder {
+.step-content .form-input::placeholder {
   color: rgba(255, 249, 240, 0.5);
 }
 
-.form-input:focus {
+.step-content .form-input:focus {
   outline: none;
   background: rgba(255, 255, 255, 0.15);
 }
 
-.form-input:invalid:focus {
+.step-content .form-input:invalid:focus {
   border-color: #ff6b6b;
 }
 
@@ -79,7 +79,7 @@
     font-size: 2rem;
   }
 
-  .form-input {
+  .step-content .form-input {
     padding: 0.8rem 1rem;
     font-size: 14px;
   }

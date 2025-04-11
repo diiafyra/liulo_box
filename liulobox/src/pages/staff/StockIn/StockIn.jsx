@@ -10,8 +10,10 @@ const StockIn = () => {
   const [newProduct, setNewProduct] = useState({ name: '', category: 'Food', price: '', description: '', imageUrl: '' });
 
   useEffect(() => {
-    fetch('http://localhost:5220/api/FoodDrink', {
+    fetch('https://fbb1-171-224-84-105.ngrok-free.app/api/FoodDrink', {
       headers: {
+        "ngrok-skip-browser-warning": "true",
+        'Content-Type': 'application/json',
         'Authorization': `Bearer ${user?.accessToken}`
       }
     })
@@ -59,9 +61,10 @@ const StockIn = () => {
 
     console.log('Sending stock request:', stockRequest);
 
-    fetch('http://localhost:5220/api/Stock/add', {
+    fetch('https://fbb1-171-224-84-105.ngrok-free.app/api/Stock/add', {
       method: 'POST',
       headers: {
+        "ngrok-skip-browser-warning": "true",
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${user.accessToken}`
       },
@@ -110,9 +113,10 @@ const StockIn = () => {
       imageUrl: newProduct.imageUrl
     };
 
-    fetch('http://localhost:5220/api/FoodDrink', {
+    fetch('https://fbb1-171-224-84-105.ngrok-free.app/api/FoodDrink', {
       method: 'POST',
       headers: {
+        "ngrok-skip-browser-warning": "true",
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${user.accessToken}`
       },

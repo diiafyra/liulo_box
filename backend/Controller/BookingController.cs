@@ -71,8 +71,8 @@ public class BookingsController : ControllerBase
 
         return Ok(result);
     }
-    
-    
+
+
     // [HttpGet("room/{roomId}")]
     // public async Task<IActionResult> GetBookingsByRoom(int roomId)
     // {
@@ -128,7 +128,7 @@ public class BookingsController : ControllerBase
         });
     }
 
-        [HttpPut("{bookingId}/complete")]
+    [HttpPut("{bookingId}/complete")]
     public async Task<IActionResult> CompleteOlineBooking(int bookingId)
     {
 
@@ -301,10 +301,11 @@ public class BookingsController : ControllerBase
 
     // Lấy tất cả booking của user
     // Dùng trong giao diện người dùng khi xem lịch sử đặt phòng
-    [Authorize(Roles = "user")]
+    [Authorize(Roles = "user,staff")]
     [HttpGet("history")]
     public async Task<IActionResult> GetBookingsByUserId()
     {
+        // System.Console.WriteLine("vai trò"+ClaimTypes.Role);
         var uid = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var bookings = await _bookingDAO.GetAllBookingsByUserUidAsync(uid);
 
@@ -316,7 +317,7 @@ public class BookingsController : ControllerBase
             bookingStatus = b.BookingStatus,
             paymentMethod = b.PaymentMethod,
             isComplete = b.IsComplete,
-            
+
             user = new
             {
                 username = b.User.Username
@@ -365,7 +366,7 @@ public class BookingsController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
-    
+
 
 
 

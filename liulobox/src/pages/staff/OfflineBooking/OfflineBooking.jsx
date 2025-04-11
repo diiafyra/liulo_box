@@ -26,9 +26,10 @@ const OfflineBooking = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:5220/api/auth/verify-customer', {
+            const response = await fetch('https://fbb1-171-224-84-105.ngrok-free.app/api/auth/verify-customer', {
                 method: 'POST',
                 headers: {
+                    'ngrok-skip-browser-warning': 'true',
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${user.accessToken}`,
                 },
@@ -106,9 +107,10 @@ const OfflineBooking = () => {
         };
 
         try {
-            const response = await fetch('http://localhost:5220/api/bookings/offline', {
+            const response = await fetch('https://fbb1-171-224-84-105.ngrok-free.app/api/bookings/offline', {
                 method: 'POST',
                 headers: {
+                    'ngrok-skip-browser-warning': 'true',
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${user.accessToken}`,
                 },

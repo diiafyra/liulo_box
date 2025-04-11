@@ -47,14 +47,26 @@ const TimeSelector = ({ selectedRoom, selectedDate, onComplete }) => {
       try {
         // Lấy dữ liệu giá
         const pricingResponse = await fetch(
-          `http://localhost:5220/api/room/pricing/${selectedRoom.roomCategoryId}/${selectedDate}`
+          `https://fbb1-171-224-84-105.ngrok-free.app/api/room/pricing/${selectedRoom.roomCategoryId}/${selectedDate}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'ngrok-skip-browser-warning': 'true'
+            }
+          }
         );
         const pricingData = await pricingResponse.json();
         setPriceRanges(pricingData);
 
         // Lấy dữ liệu về các slot đã đặt
         const bookedResponse = await fetch(
-          `http://localhost:5220/api/room/booked/${selectedRoom.id}?date=${selectedDate}`
+          `https://fbb1-171-224-84-105.ngrok-free.app/api/room/booked/${selectedRoom.id}?date=${selectedDate}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'ngrok-skip-browser-warning': 'true'
+            }
+          }
         );
         const bookedData = await bookedResponse.json();
         setBookedSlots(bookedData);

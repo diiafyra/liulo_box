@@ -18,7 +18,7 @@ function Header() {
   const navigate = useNavigate();
 
   const customerMenuItems = ['Trang chủ', 'Giới Thiệu', 'Sơ đồ Phòng - Giá', 'Đặt phòng', 'Liên hệ'];
-  const staffMenuItems = ['Trang chủ', 'Tạo tài khoản nhân viên', 'Quản lý đặt phòng', 'Nhập hàng', 'Trả phòng khách Online', 'Báo cáo'];
+  const staffMenuItems = ['Trang chủ', 'Tạo tài khoản nhân viên', 'Quản lý đặt phòng', 'Nhập hàng', 'Trả phòng khách Online'];
   const menuItems = isStaff ? staffMenuItems : customerMenuItems;
 
   const closeMenu = () => {
@@ -48,8 +48,8 @@ function Header() {
         case 'Trả phòng khách Online':
           navigate('/staff/booking/online');
           break;
-        case 'Báo cáo':
-          navigate('/staff/reports');
+        // case 'Báo cáo':
+        //   navigate('/staff/reports');
           break;
         default:
           navigate('/staff/dashboard');

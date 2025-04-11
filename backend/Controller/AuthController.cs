@@ -5,19 +5,21 @@ using System;
 using System.Threading.Tasks;
 using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Authorization;
-
+using DTO;
 namespace Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {
+        private readonly IAuthService _authService;
         private readonly FirebaseService _firebaseService;
         private readonly IUserDao _userDao;
         private readonly EmailService _emailService;
 
-        public AuthController(FirebaseService firebaseService, IUserDao userDao, EmailService emailService)
+        public AuthController(FirebaseService firebaseService, IUserDao userDao, EmailService emailService, IAuthService authService)
         {
+            _authService = authService;
             _firebaseService = firebaseService;
             _userDao = userDao;
             _emailService = emailService;
@@ -29,108 +31,17 @@ namespace Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            string firebaseUid;
+            System.Console.WriteLine("Register request: " + request.ToString());
             try
             {
-                if (request.IsGoogleAuth)
-                {
-                    // Logic đăng ký với Google Auth
-                    var decodedToken = await _firebaseService.VerifyTokenAsync(request.IdToken);
-                    firebaseUid = decodedToken.Uid;
-                    var googleEmail = decodedToken.Claims["email"]?.ToString();
-                    var googleName = decodedToken.Claims["name"]?.ToString();
-
-                    var existingUser = await _userDao.GetUserByFirebaseUidAsync(firebaseUid);
-                    if (existingUser != null)
-                    {
-                        return Ok(new RegisterResponse { Message = "User already exists in SQL Server." });
-                    }
-
-                    var newPassword = GenerateRandomPassword();
-                    await _firebaseService.UpdatePasswordAsync(firebaseUid, newPassword);
-
-                    _emailService.SendEmail(googleEmail, "Your Password",
-                        $"Dear {googleName}, Your password for email login is: {newPassword}. Use this with your Google email to log in.");
-
-                    var user = new User
-                    {
-                        FirebaseUid = firebaseUid,
-                        Username = googleName,
-                        Email = googleEmail,
-                        PhoneNumber = "",
-                        IsEmailVerified = true
-                    };
-
-                    await _userDao.AddUserAsync(user);
-                    if (!decodedToken.Claims.ContainsKey("role"))
-                    {
-                        await _firebaseService.SetUserRoleAsync(firebaseUid, "user");
-                    }
-
-                    return Ok(new RegisterResponse { FirebaseUid = firebaseUid, Message = "User registered successfully. Please check your email for the password." });
-                }
-                else
-                {
-                    // Logic đăng ký với thông tin người dùng tự nhập
-                    if (string.IsNullOrEmpty(request.Username))
-                        return BadRequest(new { Message = "Username is required" });
-
-                    if (string.IsNullOrEmpty(request.Email))
-                        return BadRequest(new { Message = "Email is required for non-Google registration" });
-
-                    if (string.IsNullOrEmpty(request.Password))
-                        return BadRequest(new { Message = "Password is required for non-Google registration" });
-
-                    firebaseUid = await _firebaseService.CreateUserAsync(request.Email, request.Password);
-                    System.Console.WriteLine($"[🔥 AuthController] Firebase UID: {firebaseUid}");
-                    try
-                    {
-                        var verificationCode = GenerateRandomPassword();
-
-                        // Nối uid và mã xác minh, phân cách bằng "|"
-                        var combined = $"{firebaseUid}|{verificationCode}";
-
-                        // Mã hóa Base64 để an toàn cho URL
-                        byte[] combinedBytes = System.Text.Encoding.UTF8.GetBytes(combined);
-                        var encodedCode = Convert.ToBase64String(combinedBytes)
-                            .Replace("+", "-")
-                            .Replace("/", "_")
-                            .Replace("=", "");
-
-                        // Tạo link xác minh
-                        System.Console.WriteLine($"[🔥 AuthController] Verification link: http://localhost:5220/api/auth/verify-email?code={encodedCode}");
-                        var verificationLink = $"http://localhost:5220/api/auth/verify-email?code={encodedCode}";
-                        _emailService.SendEmail(request.Email, "Xác minh Email của bạn",
-                            $"Nhấn vào đây để xác minh: <a href='{verificationLink}'>Xác minh</a>");
-                        System.Console.WriteLine($"[🔥 AuthController] Verification link sent to email: {request.Email}");
-                        var user = new User
-                        {
-                            FirebaseUid = firebaseUid,
-                            Username = request.Username,
-                            Email = request.Email,
-                            PhoneNumber = request.PhoneNumber,
-                            IsEmailVerified = false
-                        };
-                        System.Console.WriteLine($"[🔥 AuthController] User object: {user}");
-
-                        await _userDao.AddUserAsync(user);
-                        await _firebaseService.SetUserRoleAsync(firebaseUid, "user");
-                        System.Console.WriteLine($"[🔥 AuthController] User role set to 'user' for UID: {firebaseUid}");
-                        return Ok(new RegisterResponse { FirebaseUid = firebaseUid, Message = "Registration successful, please check your email for verification" });
-                    }
-                    catch (Exception dbEx)
-                    {
-                        await _firebaseService.DeleteUserAsync(firebaseUid);
-                        return StatusCode(500, new { Message = "Failed to save user to database", Error = dbEx.Message });
-                    }
-                }
+                var response = await _authService.RegisterAsync(request);
+                return Ok(response);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { Message = "Registration failed", Error = ex.Message });
             }
         }
-
         // Xác minh email
         [HttpGet("verify-email")]
         public async Task<IActionResult> VerifyEmail(string code)
@@ -192,17 +103,11 @@ namespace Controllers
             }
         }
 
-        private string GenerateRandomPassword()
-        {
-            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            var random = new Random();
-            return new string(Enumerable.Repeat(chars, 8).Select(s => s[random.Next(s.Length)]).ToArray());
-        }
-
         [Authorize(Roles = "staff")] // staff mới được tạo user
         [HttpPost("create-user")]
         public async Task<IActionResult> CreateUser([FromBody] RegisterRequest request)
         {
+            System.Console.WriteLine("Create user request: " + request.ToString());
             try
             {
                 var registerResponse = await Register(request);
@@ -281,47 +186,7 @@ namespace Controllers
         }
 
 
-        // Thêm các class request/response
-        public class VerifyCustomerRequest
-        {
-            public string Name { get; set; }
-            public string PhoneNumber { get; set; }
-        }
-
-        public class VerifyCustomerResponse
-        {
-            public int UserId { get; set; }              // Thêm dòng này
-            public bool IsExistingUser { get; set; }
-            public string Username { get; set; }
-            public string Email { get; set; }
-            public string PhoneNumber { get; set; }
-            public string Message { get; set; }
-        }
-
-
+        // Thêm các class request/respons
 
     }
-
-
-
-    public class RegisterRequest
-    {
-        public string IdToken { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public string Email { get; set; }
-        public string PhoneNumber { get; set; }
-        public bool IsGoogleAuth { get; set; }
-    }
-
-    public class LoginRequest
-    {
-        public string IdToken { get; set; }
-    }
-    public class RegisterResponse
-    {
-        public string FirebaseUid { get; set; }
-        public string Message { get; set; }
-    }
-
 }

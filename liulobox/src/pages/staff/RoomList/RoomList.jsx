@@ -25,7 +25,14 @@ const RoomList = () => {
   // Fetch danh sách phòng
   const fetchRooms = async () => {
     try {
-      const res = await fetch('http://localhost:5220/api/room/room-state');
+      const res = await fetch('https://fbb1-171-224-84-105.ngrok-free.app/api/room/room-state', {
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
       const data = await res.json();
       setRooms(data);
       setFilteredRooms(data);
@@ -87,9 +94,10 @@ const RoomList = () => {
     };
   
     try {
-      const res = await fetch(`http://localhost:5220/api/bookings/checkout`, {
+      const res = await fetch(`https://fbb1-171-224-84-105.ngrok-free.app/api/bookings/checkout`, {
         method: 'POST',
         headers: {
+          'ngrok-skip-browser-warning': 'true',
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
@@ -135,9 +143,10 @@ const RoomList = () => {
     };
 
     try {
-      const res = await fetch('http://localhost:5220/api/bookings/add-fooddrinks', {
+      const res = await fetch('https://fbb1-171-224-84-105.ngrok-free.app/api/bookings/add-fooddrinks', {
         method: 'POST',
         headers: {
+          'ngrok-skip-browser-warning': 'true',
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
@@ -163,9 +172,11 @@ const RoomList = () => {
     }
 
     try {
-      const res = await fetch(`http://localhost:5220/api/bookings/confirm/${bookingDetails.id}`, {
+      const res = await fetch(`https://fbb1-171-224-84-105.ngrok-free.app/api/bookings/confirm/${bookingDetails.id}`, {
         method: 'PUT',
         headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
           'Authorization': `Bearer ${token}`,
         },
       });
