@@ -119,7 +119,7 @@ Sử dụng sandbox mô phỏng với phương thức thanh toán là quét qr.
     "RequestType": "captureMoMoWallet"
   }
 ```
-(Về https://b2bd-171-224-84-105.ngrok-free.app/api/payment, không rõ lý do tại sao momo không trả về endpoint nên lấy tham số trực tiếp từ url momo gọi sau khi thanh toán và gọi thủ công 1 endpoint khác)
+(Về "NotifyUrl": https://b2bd-171-224-84-105.ngrok-free.app/api/payment, không rõ lý do tại sao momo không trả về endpoint nên project thực hiện 1 cách khác: lấy tham số trực tiếp từ url momo gọi sau khi thanh toán và gọi thủ công 1 endpoint khác)
 
 ## Bảo mật
 ![image](https://github.com/user-attachments/assets/10607475-8cf5-4565-b92a-1c4586692ed6)
