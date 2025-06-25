@@ -64,7 +64,7 @@ code cụ thể trong báo cáo gửi kèm.
 
 ## API tiêu biểu
 
-Backend viết theo mô hình layered achitecture. Không đóng gói container mà sử dụng ngrok để expose localhost ra internet.
+Backend viết theo mô hình layered achitecture. Không đóng gói container. Sử dụng ngrok để expose localhost ra internet.
 
 Bookings API:
 Gồm 9 endpoints:
